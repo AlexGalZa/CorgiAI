@@ -3,7 +3,7 @@ django-unfold==0.90.0
 django-ninja==1.6.2
 psycopg2-binary==2.9.11
 python-dotenv==1.0.1
-boto3==1.42.91
+boto3==1.42.93
 resend==2.29.0
 django-cors-headers==4.9.0
 gunicorn==25.3.0
