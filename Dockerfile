@@ -20,7 +20,7 @@
 # node:25-alpine dropped the bundled corepack binary; install pnpm
 # globally via npm instead. Pinned to node:22-alpine (LTS) since we
 # don't need anything from 25 and 22 is still supported.
-FROM node:22-alpine AS node-base
+FROM node:25-alpine AS node-base
 RUN apk add --no-cache libc6-compat
 ENV PNPM_HOME="/pnpm" \
     PATH="/pnpm:$PATH"
