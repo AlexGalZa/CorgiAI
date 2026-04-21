@@ -59,7 +59,7 @@ ENV VITE_API_URL=$VITE_API_URL \
 RUN pnpm exec tsc -b && pnpm exec vite build --base=/ops/
 
 # ── API (Python) deps ───────────────────────────────────────────────────────
-FROM python:3.12-slim AS api-deps
+FROM python:3.14-slim AS api-deps
 ENV PIP_NO_CACHE_DIR=1 \
     PIP_DISABLE_PIP_VERSION_CHECK=1
 RUN --mount=type=cache,id=apt-api,target=/var/cache/apt,sharing=locked \
@@ -80,7 +80,7 @@ RUN --mount=type=cache,id=pip,target=/root/.cache/pip \
     pip install -r requirements.txt supervisor==4.2.5 "setuptools<81"
 
 # ── Runner ──────────────────────────────────────────────────────────────────
-FROM python:3.12-slim AS runner
+FROM python:3.14-slim AS runner
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
     NODE_ENV=production \
