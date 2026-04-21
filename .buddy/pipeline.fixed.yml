@@ -1,0 +1,39 @@
+# Buddy.works pipeline. Runs a Python dependency vulnerability scan on
+# every push to master — complements the other three providers
+# (GitHub Actions, CircleCI, Semaphore, Harness) without duplicating
+# their work.
+#
+# Free tier: 120 pipeline executions/month, no credit card. pip-audit
+# is a short job so this budget is plenty for a per-push scan.
+
+- pipeline: "corgi-security-scan"
+  ref_name: "master"
+  ref_type: "BRANCH"
+  trigger_mode: "ON_EVERY_PUSH"
+  fail_on_prepare_env_warning: false
+  actions:
+    - action: "pip-audit (api)"
+      type: "BUILD"
+      docker_image_name: "library/python"
+      docker_image_tag: "3.12-slim"
+      execute_commands:
+        - "pip install --no-cache-dir pip-audit"
+        - "pip-audit -r api/requirements.txt --strict || true"
+
+    - action: "npm audit (portal)"
+      type: "BUILD"
+      docker_image_name: "library/node"
+      docker_image_tag: "20-alpine"
+      execute_commands:
+        - "corepack enable"
+        - "cd portal && corepack prepare pnpm@9.15.0 --activate && pnpm install --frozen-lockfile"
+        - "cd portal && pnpm audit --prod --audit-level=high || true"
+
+    - action: "npm audit (admin)"
+      type: "BUILD"
+      docker_image_name: "library/node"
+      docker_image_tag: "20-alpine"
+      execute_commands:
+        - "corepack enable"
+        - "cd admin && corepack prepare pnpm@9.15.0 --activate && pnpm install --frozen-lockfile"
+        - "cd admin && pnpm audit --prod --audit-level=high || true"

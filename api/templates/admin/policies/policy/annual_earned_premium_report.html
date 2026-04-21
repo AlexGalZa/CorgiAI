@@ -1,0 +1,129 @@
+{% extends "admin/base_site.html" %}
+{% load i18n admin_urls humanize %}
+
+{% block content %}
+<div style="color: #666; margin-bottom: 15px; font-size: 13px; line-height: 1.6;">
+    <p style="margin: 0 0 6px 0;"><strong>Scope:</strong> Annual policies only. {% if include_brokered %}All policies (TECHRRG + brokered).{% else %}Non-brokered (TECHRRG) policies only.{% endif %}</p>
+    <p style="margin: 0 0 6px 0;"><strong>Proration:</strong> Earned premium for each month is prorated by active days in that month relative to the full policy term.</p>
+    <p style="margin: 0 0 6px 0;"><strong>Admin Fee:</strong> 22% of the pre-tax premium (Corgi Admin's portion). State surplus lines taxes are backed out first. Applied to the full year total per policy.</p>
+    <p style="margin: 0;"><strong>Monthly policies</strong> are excluded — use the <a href="{% url 'admin:policies_policy_premiums_paid' %}">Premiums Paid</a> report for those.</p>
+</div>
+
+<form method="get" style="margin-bottom: 20px; display: flex; align-items: center; gap: 15px;">
+    <div>
+        <label for="year">Year:</label>
+        <select name="year" id="year" onchange="this.form.submit()">
+            {% for y in years %}
+            <option value="{{ y }}" {% if selected_year == y %}selected{% endif %}>{{ y }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div style="display: flex; align-items: center; gap: 5px;">
+        <input type="checkbox" name="include_brokered" id="include_brokered" onchange="this.form.submit()" {% if include_brokered %}checked{% endif %}>
+        <label for="include_brokered">Include Brokered</label>
+    </div>
+    <a href="{% url 'admin:policies_policy_annual_earned_premium_export' %}?year={{ selected_year }}{% if include_brokered %}&include_brokered=on{% endif %}" class="button" style="padding: 5px 15px;">Export CSV</a>
+</form>
+
+<div class="results">
+    <table style="margin-bottom: 20px; width: auto;">
+        <thead>
+            <tr>
+                <th>Summary for {{ selected_year }}</th>
+                <th>Amount</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Total Earned Premium</td>
+                <td>${{ grand_total_earned|floatformat:2|intcomma }}</td>
+            </tr>
+            <tr>
+                <td>Total Admin Fees</td>
+                <td>${{ grand_total_admin_fee|floatformat:2|intcomma }}</td>
+            </tr>
+            <tr style="font-weight: bold;">
+                <td>Total Premium Portion</td>
+                <td>${{ grand_total_premium_portion|floatformat:2|intcomma }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div style="overflow-x: auto;">
+        <table id="result_list">
+            <thead>
+                <tr>
+                    <th>Policy Number</th>
+                    <th>Coverage</th>
+                    <th>Policy Start</th>
+                    <th>Policy End</th>
+                    <th>Annual Premium</th>
+                    {% for m in month_names %}<th>{{ m }}</th>{% endfor %}
+                    <th>Year Total</th>
+                    <th>Admin Fee</th>
+                    <th>Premium Portion</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in rows %}
+                {% with policy=row.policy %}
+                <tr>
+                    <td><a href="{% url 'admin:policies_policy_change' policy.id %}">{{ policy.policy_number }}</a></td>
+                    <td>{{ policy.coverage_type }}</td>
+                    <td>{{ policy.effective_date|date:"Y-m-d" }}</td>
+                    <td>{{ policy.expiration_date|date:"Y-m-d" }}</td>
+                    <td>${{ policy.premium|floatformat:2|intcomma }}</td>
+                    {% for earned in row.earned_by_month %}
+                    <td>
+                        {% if earned %}
+                        <span style="color:#444;">${{ earned|floatformat:2|intcomma }}</span>
+                        {% else %}
+                        <span style="color:#ccc;">—</span>
+                        {% endif %}
+                    </td>
+                    {% endfor %}
+                    <td style="font-weight: bold;">${{ row.year_total|floatformat:2|intcomma }}</td>
+                    <td>${{ row.admin_fee|floatformat:2|intcomma }}</td>
+                    <td>${{ row.premium_portion|floatformat:2|intcomma }}</td>
+                </tr>
+                {% endwith %}
+                {% empty %}
+                <tr><td colspan="18">No annual policies found for {{ selected_year }}.</td></tr>
+                {% endfor %}
+            </tbody>
+            <tfoot>
+                <tr style="font-weight: bold; border-top: 2px solid #999;">
+                    <td colspan="5">Monthly Totals</td>
+                    {% for total in monthly_totals %}
+                    <td>${{ total|floatformat:2|intcomma }}</td>
+                    {% endfor %}
+                    <td>${{ grand_total_earned|floatformat:2|intcomma }}</td>
+                    <td>${{ grand_total_admin_fee|floatformat:2|intcomma }}</td>
+                    <td>${{ grand_total_premium_portion|floatformat:2|intcomma }}</td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+
+    <p class="paginator">
+        {% if page_obj.has_previous %}
+            <a href="?year={{ selected_year }}{% if include_brokered %}&include_brokered=on{% endif %}&page={{ page_obj.previous_page_number }}">Previous</a>
+        {% endif %}
+
+        <span class="this-page">
+            Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+            {% if page_obj.paginator.count > 0 %}
+                ({{ page_obj.paginator.count }} polic{{ page_obj.paginator.count|pluralize:"y,ies" }})
+            {% endif %}
+        </span>
+
+        {% if page_obj.has_next %}
+            <a href="?year={{ selected_year }}{% if include_brokered %}&include_brokered=on{% endif %}&page={{ page_obj.next_page_number }}">Next</a>
+        {% endif %}
+    </p>
+</div>
+
+<p style="margin-top: 20px;">
+    <a href="{% url 'admin:index' %}">&laquo; Back to Admin</a>
+</p>
+{% endblock %}

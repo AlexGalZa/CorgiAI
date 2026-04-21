@@ -1,0 +1,30 @@
+{% extends "admin/base_site.html" %}
+{% load i18n humanize %}
+
+{% block title %}Earned Premium Report{% endblock %}
+
+{% block content %}
+<h1>Earned Premium Report</h1>
+<p>Monthly breakdown of earned vs unearned premium (GAAP revenue recognition).</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Month</th>
+      <th>Total Earned</th>
+      <th>Total Unearned</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for row in rows %}
+    <tr>
+      <td>{{ row.month|date:"F Y" }}</td>
+      <td>${{ row.total_earned|intcomma }}</td>
+      <td>${{ row.total_unearned|intcomma }}</td>
+    </tr>
+    {% empty %}
+    <tr><td colspan="3">No earned premium records found. Run <code>python manage.py calculate_earned_premium</code> to generate.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

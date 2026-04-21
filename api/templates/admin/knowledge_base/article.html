@@ -1,0 +1,108 @@
+{% extends "admin/base_site.html" %}
+{% load i18n %}
+
+{% block title %}{{ article.title }} — Knowledge Base{% endblock %}
+
+{% block extrahead %}
+{{ block.super }}
+<style>
+  .kb-article-content h1, .kb-article-content h2, .kb-article-content h3,
+  .kb-article-content h4, .kb-article-content h5, .kb-article-content h6 {
+    margin: 1.5em 0 0.5em;
+    font-weight: 700;
+  }
+  .kb-article-content h2 { font-size: 1.3em; border-bottom: 1px solid var(--border-color, #eee); padding-bottom: 6px; }
+  .kb-article-content h3 { font-size: 1.1em; }
+  .kb-article-content p { line-height: 1.7; margin: 0.8em 0; }
+  .kb-article-content ul, .kb-article-content ol { padding-left: 1.5em; margin: 0.8em 0; }
+  .kb-article-content li { margin: 0.3em 0; line-height: 1.6; }
+  .kb-article-content code { background: var(--darkened-bg, #f5f5f5); padding: 0.1em 0.4em; border-radius: 4px; font-size: 0.9em; font-family: monospace; }
+  .kb-article-content pre { background: var(--darkened-bg, #f5f5f5); padding: 14px 16px; border-radius: 8px; overflow-x: auto; margin: 1em 0; }
+  .kb-article-content pre code { background: none; padding: 0; font-size: 0.85em; }
+  .kb-article-content table { border-collapse: collapse; width: 100%; margin: 1em 0; font-size: 0.9em; }
+  .kb-article-content th, .kb-article-content td { border: 1px solid var(--border-color, #ddd); padding: 8px 12px; text-align: left; }
+  .kb-article-content th { background: var(--darkened-bg, #f5f5f5); font-weight: 600; }
+  .kb-article-content blockquote { border-left: 4px solid #ff5c00; margin: 1em 0; padding: 8px 16px; background: rgba(255,92,0,0.06); border-radius: 0 6px 6px 0; }
+  .kb-article-content a { color: #ff5c00; }
+  .kb-article-content hr { border: none; border-top: 1px solid var(--border-color, #eee); margin: 1.5em 0; }
+</style>
+{% endblock %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs" style="padding: 12px 0 0; font-size: 13px;">
+  <a href="{% url 'admin:index' %}">Home</a> ›
+  <a href="{% url 'knowledge_base_index' %}">Knowledge Base</a> ›
+  <a href="{% url 'knowledge_base_index' %}?category={{ article.category }}">{{ article.get_category_display }}</a> ›
+  {{ article.title }}
+</div>
+{% endblock %}
+
+{% block content %}
+<div style="max-width: 800px; margin: 0 auto; padding: 24px 0;">
+
+  <!-- Article header -->
+  <div style="margin-bottom: 24px;">
+    <span style="display: inline-block; padding: 3px 10px; background: rgba(255,92,0,0.12); color: #ff5c00; border-radius: 20px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px;">
+      {{ article.get_category_display }}
+    </span>
+    <h1 style="margin: 0 0 12px 0; font-size: 26px; font-weight: 700; line-height: 1.3;">{{ article.title }}</h1>
+    <div style="display: flex; align-items: center; gap: 16px; font-size: 13px; color: var(--body-quiet-color, #888);">
+      {% if article.author %}
+      <span>by {{ article.author.get_full_name|default:article.author.email }}</span>
+      {% endif %}
+      <span>{{ article.updated_at|date:"M j, Y" }}</span>
+      <span>~{{ article.reading_time_minutes }} min read</span>
+      <span>{{ article.view_count }} views</span>
+    </div>
+    {% if article.tag_list %}
+    <div style="margin-top: 10px; display: flex; gap: 6px; flex-wrap: wrap;">
+      {% for tag in article.tag_list %}
+      <a href="{% url 'knowledge_base_index' %}?q={{ tag }}"
+         style="padding: 2px 8px; background: var(--darkened-bg, #eee); border-radius: 12px; font-size: 11px; color: var(--body-quiet-color); text-decoration: none;"
+      >{{ tag }}</a>
+      {% endfor %}
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- Edit button for admins -->
+  {% if perms.knowledge_base.change_knowledgearticle %}
+  <div style="margin-bottom: 16px;">
+    <a href="{% url 'admin:knowledge_base_knowledgearticle_change' article.pk %}"
+       style="font-size: 12px; color: var(--body-quiet-color); text-decoration: none; padding: 4px 8px; border: 1px solid var(--border-color, #ddd); border-radius: 5px;"
+    >✏️ Edit article</a>
+  </div>
+  {% endif %}
+
+  <!-- Content -->
+  <div class="kb-article-content" style="font-size: 15px; color: var(--body-fg);">
+    {{ content_html|safe }}
+  </div>
+
+  <!-- Related articles -->
+  {% if related_articles %}
+  <div style="margin-top: 48px; padding-top: 24px; border-top: 1px solid var(--border-color, #eee);">
+    <h3 style="font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--body-quiet-color, #888); margin-bottom: 14px;">
+      More in {{ article.get_category_display }}
+    </h3>
+    <ul style="list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 8px;">
+      {% for rel in related_articles %}
+      <li>
+        <a href="{% url 'knowledge_base_article' rel.slug %}"
+           style="display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; border: 1px solid var(--border-color, #ddd); border-radius: 8px; text-decoration: none; color: inherit;"
+        >
+          <span style="font-size: 14px; font-weight: 500;">{{ rel.title }}</span>
+          <span style="font-size: 12px; color: var(--body-quiet-color);">~{{ rel.reading_time_minutes }} min</span>
+        </a>
+      </li>
+      {% endfor %}
+    </ul>
+  </div>
+  {% endif %}
+
+  <div style="margin-top: 32px;">
+    <a href="{% url 'knowledge_base_index' %}" style="font-size: 13px; color: var(--body-quiet-color); text-decoration: none;">← Back to Knowledge Base</a>
+  </div>
+
+</div>
+{% endblock %}

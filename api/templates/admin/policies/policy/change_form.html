@@ -1,0 +1,158 @@
+{% extends "admin/change_form.html" %}
+{% load static %}
+
+{% block extrastyle %}
+{{ block.super }}
+<style>
+    ul.object-tools,
+    .object-tools-items,
+    [class*="object-tools"] {
+        display: none !important;
+    }
+    .policy-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin-bottom: 20px;
+        align-items: center;
+    }
+    .policy-actions .pa-sep {
+        width: 1px;
+        height: 24px;
+        background: #e5e7eb;
+        margin: 0 6px;
+    }
+    .policy-actions a {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 6px 14px;
+        background: #f3f4f6;
+        color: #374151 !important;
+        border-radius: 99px;
+        text-decoration: none;
+        font-size: 12px;
+        font-weight: 500;
+        letter-spacing: 0.2px;
+        transition: all 0.12s;
+        border: none;
+    }
+    .policy-actions a:hover {
+        background: #e5e7eb;
+    }
+    .policy-actions a .material-symbols-outlined {
+        font-size: 15px;
+    }
+    .policy-actions a.pa-primary {
+        background: #ff5c00;
+        color: #fff !important;
+    }
+    .policy-actions a.pa-primary:hover {
+        background: #cc4a00;
+    }
+    .policy-actions a.pa-danger {
+        background: #fef2f2;
+        color: #dc2626 !important;
+    }
+    .policy-actions a.pa-danger:hover {
+        background: #fecaca;
+    }
+    .policy-actions a.pa-success {
+        background: #f0fdf4;
+        color: #16a34a !important;
+    }
+    .policy-actions a.pa-success:hover {
+        background: #bbf7d0;
+    }
+</style>
+{% endblock %}
+
+{% block object-tools %}{% endblock %}
+{% block object-tools-items %}{% endblock %}
+
+{% block content %}
+{% if original %}
+<div class="policy-actions">
+    <a href="{% url 'admin:policies_policy_download_coi' original.pk %}">
+        <span class="material-symbols-outlined">description</span>
+        Download COI
+    </a>
+    {% if has_cgl_coverages %}
+    <a href="{% url 'admin:policies_policy_download_cgl' original.pk %}">
+        <span class="material-symbols-outlined">file_present</span>
+        CGL Policy
+    </a>
+    {% endif %}
+    {% if has_tech_coverages %}
+    <a href="{% url 'admin:policies_policy_download_tech' original.pk %}">
+        <span class="material-symbols-outlined">file_present</span>
+        Tech Policy
+    </a>
+    {% endif %}
+    <a href="{% url 'admin:policies_policy_send_documents' original.pk %}">
+        <span class="material-symbols-outlined">send</span>
+        Send Documents
+    </a>
+
+    <div class="pa-sep"></div>
+
+    {% if not is_brokered and not has_promo_code %}
+    <a href="{% url 'admin:policies_policy_apply_promo' original.pk %}">
+        <span class="material-symbols-outlined">local_offer</span>
+        Apply Promo
+    </a>
+    {% endif %}
+    {% if can_endorse %}
+    <a href="{% url 'admin:policies_policy_endorse_modify_limits' original.pk %}" class="pa-primary">
+        <span class="material-symbols-outlined">edit</span>
+        Modify Limits
+    </a>
+    <a href="{% url 'admin:policies_policy_endorse_add_coverage' original.pk %}">
+        <span class="material-symbols-outlined">add_circle</span>
+        Add Coverage
+    </a>
+    {% if has_sibling_policies %}
+    <a href="{% url 'admin:policies_policy_endorse_remove_coverage' original.pk %}">
+        <span class="material-symbols-outlined">remove_circle</span>
+        Remove Coverage
+    </a>
+    {% endif %}
+    {% endif %}
+    {% if can_backdate %}
+    <a href="{% url 'admin:policies_policy_backdate' original.pk %}">
+        <span class="material-symbols-outlined">history</span>
+        Backdate
+    </a>
+    {% endif %}
+
+    <div class="pa-sep"></div>
+
+    {% if original.status == 'active' %}
+    <a href="{% url 'admin:policies_policy_cancel' original.pk %}" class="pa-danger">
+        <span class="material-symbols-outlined">cancel</span>
+        Cancel Policy
+    </a>
+    {% endif %}
+    {% if original.status == 'cancelled' and original.billing_frequency == 'monthly' %}
+    <a href="{% url 'admin:policies_policy_reactivate' original.pk %}" class="pa-success">
+        <span class="material-symbols-outlined">replay</span>
+        Reactivate
+    </a>
+    {% endif %}
+
+    <div class="pa-sep"></div>
+
+    <a href="{% url 'admin:policies_policy_history' original.pk %}">
+        <span class="material-symbols-outlined">schedule</span>
+        History
+    </a>
+    {% if view_on_site_url %}
+    <a href="{{ view_on_site_url }}">
+        <span class="material-symbols-outlined">open_in_new</span>
+        View on site
+    </a>
+    {% endif %}
+</div>
+{% endif %}
+{{ block.super }}
+{% endblock %}

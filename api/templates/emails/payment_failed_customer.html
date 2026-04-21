@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Failed</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: #F9F9F9;
+            color: #1D1D1D;
+            line-height: 1.6;
+        }
+
+        .email-wrapper {
+            width: 100%;
+            background-color: #F9F9F9;
+            padding: 40px 20px;
+        }
+
+        .email-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #FFFFFF;
+            border-radius: 25px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+
+        .email-header {
+            background-color: #FF5C00;
+            text-align: center;
+            padding: 28px 40px;
+        }
+
+        .header-text {
+            font-size: 22px;
+            font-weight: 700;
+            color: #FFFFFF;
+            margin: 0;
+            letter-spacing: 0.5px;
+        }
+
+        .email-body {
+            padding: 30px 40px 20px;
+        }
+
+        .greeting {
+            font-size: 16px;
+            color: #1D1D1D;
+            margin-bottom: 8px;
+        }
+
+        .message {
+            font-size: 15px;
+            color: #4E4E4E;
+            margin-bottom: 24px;
+        }
+
+        .info-box {
+            background-color: #FFF5F0;
+            border: 1px solid #FFE0CC;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 24px;
+        }
+
+        .info-row {
+            font-size: 14px;
+            color: #4E4E4E;
+            padding: 4px 0;
+        }
+
+        .info-label {
+            font-weight: 600;
+            color: #1D1D1D;
+        }
+
+        .cta-section {
+            text-align: center;
+            margin: 28px 0;
+        }
+
+        .cta-button {
+            display: inline-block;
+            background-color: #FF5C00;
+            color: #FFFFFF;
+            text-decoration: none;
+            padding: 14px 32px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .help-text {
+            font-size: 13px;
+            color: #888888;
+            margin-top: 20px;
+        }
+
+        .help-text a {
+            color: #FF5C00;
+            text-decoration: none;
+        }
+
+        .signature {
+            font-size: 15px;
+            color: #1D1D1D;
+            margin-top: 24px;
+        }
+
+        .email-footer {
+            background-color: #F9F9F9;
+            padding: 15px 40px;
+            text-align: center;
+        }
+
+        .footer-links a {
+            font-size: 12px;
+            color: #4E4E4E;
+            text-decoration: none;
+            margin: 0 8px;
+        }
+
+        .footer-links a:hover {
+            color: #FF5C00;
+        }
+
+        @media only screen and (max-width: 600px) {
+            .email-wrapper {
+                padding: 20px 10px;
+            }
+
+            .email-header {
+                padding: 22px 24px;
+            }
+
+            .header-text {
+                font-size: 18px;
+            }
+
+            .email-body {
+                padding: 20px 24px 16px;
+            }
+
+            .email-footer {
+                padding: 15px 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="email-wrapper">
+        <div class="email-container">
+            <!-- Header -->
+            <div class="email-header">
+                <p class="header-text">Corgi Insurance</p>
+            </div>
+
+            <!-- Body -->
+            <div class="email-body">
+                <p class="greeting">Hi {{ first_name }},</p>
+
+                <p class="message">We were unable to process your payment of ${{ amount }} for policy {{ policy_number }}.</p>
+
+                <div class="info-box">
+                    <div class="info-row">
+                        <span class="info-label">Policy:</span> {{ policy_number }}
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Amount:</span> ${{ amount }}
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Coverage:</span> {{ coverage_type }}
+                    </div>
+                </div>
+
+                <p class="message">Please update your payment method to keep your coverage active. If your payment isn't resolved, your policy may be suspended.</p>
+
+                <div class="cta-section">
+                    <a href="{{ billing_portal_url }}" class="cta-button" style="background-color: #FF5C00; color: #FFFFFF;">Update Payment Method</a>
+                </div>
+
+                <p class="help-text">If you need help, contact <a href="mailto:support@corgi.insure">support@corgi.insure</a></p>
+
+                <p class="signature">
+                    Thanks,<br>
+                    The Corgi Team
+                </p>
+            </div>
+
+            <!-- Footer -->
+            <div class="email-footer">
+                <div class="footer-links">
+                    <a href="#">Privacy Policy</a>
+                    <a href="#">Terms of Service</a>
+                    <a href="#">Contact Us</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

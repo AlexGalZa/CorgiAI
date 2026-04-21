@@ -1,0 +1,2 @@
+API_KEY_PREFIX = "cg_live_"
+API_KEY_PREFIX_LENGTH = 16

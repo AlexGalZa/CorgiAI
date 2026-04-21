@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Renew Your Policy</title>
+    <style>
+        body { margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #F9F9F9; color: #1D1D1D; line-height: 1.6; }
+        .email-wrapper { width: 100%; background-color: #F9F9F9; padding: 40px 20px; }
+        .email-container { max-width: 600px; margin: 0 auto; background-color: #FFFFFF; border-radius: 25px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        .header { background-color: #ff5c00; padding: 32px 40px; }
+        .header-logo { font-size: 22px; font-weight: 700; color: #FFFFFF; letter-spacing: -0.5px; }
+        .body { padding: 40px; }
+        .body h1 { font-size: 24px; font-weight: 700; color: #1D1D1D; margin: 0 0 16px; }
+        .body p { font-size: 15px; color: #4E4E4E; margin: 0 0 20px; }
+        .policy-card { background-color: #FFF5F0; border: 1px solid #FFD4B8; border-radius: 12px; padding: 20px 24px; margin: 24px 0; }
+        .policy-card .label { font-size: 12px; font-weight: 600; color: #ff5c00; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+        .policy-card .value { font-size: 18px; font-weight: 700; color: #1D1D1D; }
+        .cta-button { display: inline-block; background-color: #ff5c00; color: #FFFFFF; font-size: 15px; font-weight: 600; text-decoration: none; padding: 14px 28px; border-radius: 8px; margin: 8px 0; }
+        .footer { padding: 24px 40px; border-top: 1px solid #F0F0F0; }
+        .footer p { font-size: 13px; color: #969696; margin: 0; }
+    </style>
+</head>
+<body>
+<div class="email-wrapper">
+    <div class="email-container">
+        <div class="header">
+            <div class="header-logo">🐕 Corgi Insurance</div>
+        </div>
+        <div class="body">
+            <h1>Time to renew, {{ first_name }}</h1>
+            <p>Your <strong>{{ coverage_type }}</strong> policy is expiring in <strong>{{ days_left }} day{{ days_left|pluralize }}</strong>. Renew now to ensure continuous coverage with no gaps.</p>
+
+            <div class="policy-card">
+                <div class="label">Policy Number</div>
+                <div class="value">{{ policy_number }}</div>
+                <div style="margin-top:12px">
+                    <div class="label">Expires</div>
+                    <div style="font-size:15px;color:#4E4E4E;">{{ expiration_date }}</div>
+                </div>
+            </div>
+
+            <p>Renewing takes just a few minutes. Your information is pre-filled from your current policy — just review and confirm.</p>
+
+            <a href="{{ renewal_url }}" class="cta-button">Renew My Policy →</a>
+
+            <p style="margin-top:32px;font-size:13px;color:#969696;">If you have questions or need to make changes to your coverage, reply to this email or reach out to your account manager.</p>
+        </div>
+        <div class="footer">
+            <p>© Corgi Insurance · <a href="{{ portal_url }}" style="color:#ff5c00;text-decoration:none;">Log in to your account</a></p>
+        </div>
+    </div>
+</div>
+</body>
+</html>

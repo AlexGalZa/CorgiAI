@@ -1,0 +1,89 @@
+{% extends "admin/base_site.html" %}
+{% load i18n admin_urls %}
+
+{% block content %}
+
+<div style="margin-bottom: 20px; padding: 15px; background: var(--darkened-bg); color: var(--body-fg); border: 1px solid var(--hairline-color); border-radius: 5px;">
+    <strong>Policy:</strong> {{ policy.policy_number }}<br>
+    <strong>Coverage:</strong> {{ policy.coverage_type }}<br>
+    <strong>Current Premium:</strong> ${{ policy.premium }}<br>
+    <strong>Billing:</strong> {{ policy.billing_frequency }}
+    {% if policy.monthly_premium %}
+        (${{ policy.monthly_premium }}/month)
+    {% endif %}<br>
+    <strong>Effective:</strong> {{ policy.effective_date }} &mdash; {{ policy.expiration_date }}
+</div>
+
+<form method="post">
+    {% csrf_token %}
+
+    <fieldset class="module aligned">
+        <h2>New Limits</h2>
+        <div class="form-row">
+            <div>
+                <label for="id_aggregate_limit">{{ form.aggregate_limit.label }}:</label>
+                {{ form.aggregate_limit }}
+                {% if form.aggregate_limit.errors %}<ul class="errorlist">{% for e in form.aggregate_limit.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+            </div>
+        </div>
+        <div class="form-row">
+            <div>
+                <label for="id_per_occurrence_limit">{{ form.per_occurrence_limit.label }}:</label>
+                {{ form.per_occurrence_limit }}
+                {% if form.per_occurrence_limit.errors %}<ul class="errorlist">{% for e in form.per_occurrence_limit.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+            </div>
+        </div>
+        <div class="form-row">
+            <div>
+                <label for="id_retention">{{ form.retention.label }}:</label>
+                {{ form.retention }}
+                {% if form.retention.errors %}<ul class="errorlist">{% for e in form.retention.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+            </div>
+        </div>
+        <div class="form-row" style="margin-top: 10px;">
+            <input type="submit" name="calculate" value="Calculate Premium" formnovalidate style="background: #417690; color: white; padding: 6px 15px; border: none; border-radius: 4px; cursor: pointer;">
+        </div>
+    </fieldset>
+
+    {% if carrier_switch_warning %}
+    <div style="margin: 15px 0; padding: 15px; background: #3a2e1a; color: #FFD166; border: 1px solid #5a4a2d; border-radius: 5px;">
+        <strong>ℹ Carrier Switch:</strong> The selected aggregate limit exceeds $2,000,000. Applying this endorsement will switch the carrier from TechRRG to <strong>NTIC</strong> and regenerate all policy documents (COI + policy forms).
+    </div>
+    {% endif %}
+
+    {% if calculated_premium %}
+    <div style="margin: 15px 0; padding: 15px; background: #1a3a1a; color: #90EE90; border: 1px solid #2d5a2d; border-radius: 5px;">
+        <strong>Calculated Premium:</strong> ${{ calculated_premium }}
+    </div>
+    {% endif %}
+
+    <fieldset class="module aligned">
+        <h2>Premium</h2>
+        <div class="form-row">
+            <div>
+                <label for="id_new_premium">{{ form.new_premium.label }}:</label>
+                {{ form.new_premium }}
+                <p class="help">Pre-filled from calculation. Edit to override, or leave as-is to use the calculated value.</p>
+                {% if form.new_premium.errors %}<ul class="errorlist">{% for e in form.new_premium.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+            </div>
+        </div>
+    </fieldset>
+
+    <fieldset class="module aligned">
+        <h2>Reason</h2>
+        <div class="form-row">
+            <div>
+                <label for="id_reason">{{ form.reason.label }}:</label>
+                {{ form.reason }}
+                <p class="help">Explain why limits and/or premium are being changed. This will be recorded in the transaction log.</p>
+                {% if form.reason.errors %}<ul class="errorlist">{% for e in form.reason.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+            </div>
+        </div>
+    </fieldset>
+
+    <div class="submit-row">
+        <input type="submit" name="apply" value="Apply Endorsement" class="default">
+        <a href="{% url 'admin:policies_policy_change' policy.pk %}" class="closelink">Cancel</a>
+    </div>
+</form>
+{% endblock %}

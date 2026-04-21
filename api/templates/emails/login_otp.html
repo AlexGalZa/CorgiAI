@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Sign-In Code</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: #F9F9F9;
+            color: #1D1D1D;
+            line-height: 1.6;
+        }
+
+        .email-wrapper {
+            width: 100%;
+            background-color: #F9F9F9;
+            padding: 40px 20px;
+        }
+
+        .email-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #FFFFFF;
+            border-radius: 25px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+
+        .email-header {
+            text-align: center;
+            padding: 40px 40px 10px;
+        }
+
+        .logo {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .logo-image {
+            width: 150px;
+            height: auto;
+        }
+
+        .email-title {
+            font-size: 34px;
+            font-weight: 600;
+            line-height: 1.2;
+            color: #1D1D1D;
+            margin: 0 0 0px;
+        }
+
+        .email-body {
+            padding: 0px 40px 20px;
+        }
+
+        .greeting {
+            font-size: 16px;
+            color: #1D1D1D;
+            margin-bottom: 0px;
+        }
+
+        .message {
+            font-size: 15px;
+            color: #4E4E4E;
+            margin-bottom: 20px;
+        }
+
+        .code-container {
+            text-align: center;
+            margin: 30px 0;
+        }
+
+        .login-code {
+            display: inline-block;
+            font-size: 36px;
+            font-weight: 700;
+            color: #FF5C00;
+            letter-spacing: 8px;
+            padding: 16px 32px;
+            background-color: #FFF5F0;
+            border-radius: 12px;
+            border: 2px solid #FFE0CC;
+        }
+
+        .expiry-notice {
+            font-size: 13px;
+            color: #4E4E4E;
+            text-align: center;
+            margin-top: 12px;
+        }
+
+        .disclaimer {
+            font-size: 13px;
+            color: #888888;
+            margin-top: 24px;
+        }
+
+        .signature {
+            font-size: 15px;
+            color: #1D1D1D;
+        }
+
+        .email-footer {
+            background-color: #F9F9F9;
+            padding: 15px 40px;
+            text-align: center;
+        }
+
+        .footer-links a {
+            font-size: 12px;
+            color: #4E4E4E;
+            text-decoration: none;
+            margin: 0 8px;
+        }
+
+        .footer-links a:hover {
+            color: #1E4FFF;
+        }
+
+        @media only screen and (max-width: 600px) {
+            .email-wrapper {
+                padding: 20px 10px;
+            }
+
+            .email-header {
+                padding: 30px 24px 16px;
+            }
+
+            .email-body {
+                padding: 16px 24px 30px;
+            }
+
+            .email-title {
+                font-size: 24px;
+            }
+
+            .login-code {
+                font-size: 28px;
+                letter-spacing: 6px;
+                padding: 12px 24px;
+            }
+
+            .email-footer {
+                padding: 20px 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="email-wrapper">
+        <div class="email-container">
+            <!-- Header -->
+            <div class="email-header">
+                <div class="logo">
+                    <img src="https://cdn.corgi.insure/images/corgi-flying.png" alt="Corgi" class="logo-image">
+                </div>
+                <h1 class="email-title">Your Sign-In Code</h1>
+            </div>
+
+            <!-- Body -->
+            <div class="email-body">
+                <p class="greeting">Hi {{ user_name }},</p>
+
+                <p class="message">Use the code below to sign in to your Corgi account:</p>
+
+                <div class="code-container">
+                    <div class="login-code">{{ code }}</div>
+                    <p class="expiry-notice">This code expires in 10 minutes.</p>
+                </div>
+
+                <p class="disclaimer">If you didn't request this code, you can safely ignore this email.</p>
+
+                <p class="signature">
+                    Thanks,<br>
+                    The Corgi Team
+                </p>
+            </div>
+
+            <!-- Footer -->
+            <div class="email-footer">
+                <div class="footer-links">
+                    <a href="#">Privacy Policy</a>
+                    <a href="#">Terms of Service</a>
+                    <a href="#">Contact Us</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

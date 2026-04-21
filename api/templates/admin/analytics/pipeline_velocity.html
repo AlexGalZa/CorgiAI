@@ -1,0 +1,92 @@
+{% extends "admin/base_site.html" %}
+{% load i18n humanize %}
+
+{% block title %}Pipeline Velocity{% endblock %}
+
+{% block content %}
+<h1>Sales Pipeline Velocity</h1>
+<p>Average time quotes spend in each stage, stage-to-stage conversion rates, and total open pipeline value.</p>
+
+<h2>Summary</h2>
+<table>
+  <thead>
+    <tr>
+      <th>Metric</th>
+      <th>Value</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr><td>Total Quotes (non-draft)</td><td>{{ data.total_quotes|intcomma }}</td></tr>
+    <tr><td>Purchased / Bound</td><td>{{ data.purchased_count|intcomma }}</td></tr>
+    <tr><td>Open Quotes</td><td>{{ data.open_quotes|intcomma }}</td></tr>
+    <tr><td>Avg Open Age</td><td>{% if data.avg_open_age_days %}{{ data.avg_open_age_days }} days{% else %}—{% endif %}</td></tr>
+    <tr><td>Total Pipeline Value</td><td>${{ data.pipeline_value|floatformat:0|intcomma }}</td></tr>
+  </tbody>
+</table>
+
+<h2>Stage Velocity</h2>
+<table>
+  <thead>
+    <tr>
+      <th>Transition</th>
+      <th>Avg Days</th>
+      <th>Count in Stage</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for sv in data.stage_velocity %}
+    <tr>
+      <td>{{ sv.display }}</td>
+      <td>{% if sv.avg_days %}{{ sv.avg_days }}{% else %}—{% endif %}</td>
+      <td>{{ sv.count|intcomma }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<h2>Conversion Rates</h2>
+<table>
+  <thead>
+    <tr>
+      <th>Funnel Step</th>
+      <th>Rate</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Submitted → Quoted</td>
+      <td>{% if data.conversion_rates.submitted_to_quoted %}{{ data.conversion_rates.submitted_to_quoted }}%{% else %}—{% endif %}</td>
+    </tr>
+    <tr>
+      <td>Quoted → Purchased</td>
+      <td>{% if data.conversion_rates.quoted_to_purchased %}{{ data.conversion_rates.quoted_to_purchased }}%{% else %}—{% endif %}</td>
+    </tr>
+    <tr>
+      <td>Submitted → Purchased (Full Funnel)</td>
+      <td>{% if data.conversion_rates.submitted_to_purchased %}{{ data.conversion_rates.submitted_to_purchased }}%{% else %}—{% endif %}</td>
+    </tr>
+    <tr>
+      <td>Decline Rate</td>
+      <td>{% if data.conversion_rates.decline_rate %}{{ data.conversion_rates.decline_rate }}%{% else %}—{% endif %}</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2>Stage Counts</h2>
+<table>
+  <thead>
+    <tr>
+      <th>Status</th>
+      <th>Count</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for stage, count in data.stage_counts.items %}
+    <tr>
+      <td>{{ stage|title }}</td>
+      <td>{{ count|intcomma }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

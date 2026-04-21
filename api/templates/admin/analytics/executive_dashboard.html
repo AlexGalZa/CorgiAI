@@ -1,0 +1,127 @@
+{% extends "admin/base_site.html" %}
+{% load i18n %}
+
+{% block title %}Executive Dashboard{% endblock %}
+
+{% block content %}
+<div style="padding: 20px 0;">
+  <h1 style="font-size: 1.6rem; font-weight: 700; margin-bottom: 4px;">Executive Dashboard</h1>
+  <p style="color: #666; margin-bottom: 24px;">
+    Key business metrics at a glance. Generated: {{ data.generated_at }}
+  </p>
+
+  <!-- Row 1: GWP + ARR + Loss Ratio + Growth Rate -->
+  <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 16px;">
+
+    <div style="background: #fff; border: 1px solid #e5e7eb; border-radius: 8px; padding: 20px;">
+      <div style="font-size: 0.75rem; color: #6b7280; text-transform: uppercase; font-weight: 600; letter-spacing: 0.05em;">Total GWP</div>
+      <div style="font-size: 1.8rem; font-weight: 700; margin-top: 6px; color: #1f2937;">${{ data.gwp.all_time|floatformat:0 }}</div>
+      <div style="font-size: 0.8rem; color: #9ca3af; margin-top: 4px;">YTD: ${{ data.gwp.ytd|floatformat:0 }}</div>
+    </div>
+
+    <div style="background: #fff; border: 1px solid #e5e7eb; border-radius: 8px; padding: 20px;">
+      <div style="font-size: 0.75rem; color: #6b7280; text-transform: uppercase; font-weight: 600; letter-spacing: 0.05em;">ARR</div>
+      <div style="font-size: 1.8rem; font-weight: 700; margin-top: 6px; color: #1f2937;">${{ data.arr|floatformat:0 }}</div>
+      <div style="font-size: 0.8rem; color: #9ca3af; margin-top: 4px;">Annual Recurring Revenue</div>
+    </div>
+
+    <div style="background: #fff; border: 1px solid #e5e7eb; border-radius: 8px; padding: 20px;">
+      <div style="font-size: 0.75rem; color: #6b7280; text-transform: uppercase; font-weight: 600; letter-spacing: 0.05em;">Loss Ratio</div>
+      <div style="font-size: 1.8rem; font-weight: 700; margin-top: 6px;
+        {% if data.loss_ratio_pct %}
+          {% if data.loss_ratio_pct > 100 %}color: #ef4444;
+          {% elif data.loss_ratio_pct > 70 %}color: #f59e0b;
+          {% else %}color: #10b981;{% endif %}
+        {% else %}color: #1f2937;{% endif %}">
+        {% if data.loss_ratio_pct %}{{ data.loss_ratio_pct }}%{% else %}—{% endif %}
+      </div>
+      <div style="font-size: 0.8rem; color: #9ca3af; margin-top: 4px;">Incurred / Earned Premium</div>
+    </div>
+
+    <div style="background: #fff; border: 1px solid #e5e7eb; border-radius: 8px; padding: 20px;">
+      <div style="font-size: 0.75rem; color: #6b7280; text-transform: uppercase; font-weight: 600; letter-spacing: 0.05em;">Growth Rate (30d)</div>
+      <div style="font-size: 1.8rem; font-weight: 700; margin-top: 6px;
+        {% if data.growth_rate_pct is not None %}
+          {% if data.growth_rate_pct >= 0 %}color: #10b981;{% else %}color: #ef4444;{% endif %}
+        {% else %}color: #1f2937;{% endif %}">
+        {% if data.growth_rate_pct is not None %}
+          {% if data.growth_rate_pct >= 0 %}+{% endif %}{{ data.growth_rate_pct }}%
+        {% else %}—{% endif %}
+      </div>
+      <div style="font-size: 0.8rem; color: #9ca3af; margin-top: 4px;">vs. prior 30 days GWP</div>
+    </div>
+  </div>
+
+  <!-- Row 2: Retention Rate + Cash Position + Active Policies + Open Claims -->
+  <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 32px;">
+
+    <div style="background: #fff; border: 1px solid #e5e7eb; border-radius: 8px; padding: 20px;">
+      <div style="font-size: 0.75rem; color: #6b7280; text-transform: uppercase; font-weight: 600; letter-spacing: 0.05em;">Retention Rate</div>
+      <div style="font-size: 1.8rem; font-weight: 700; margin-top: 6px;
+        {% if data.retention_rate_pct %}
+          {% if data.retention_rate_pct >= 85 %}color: #10b981;
+          {% elif data.retention_rate_pct >= 70 %}color: #f59e0b;
+          {% else %}color: #ef4444;{% endif %}
+        {% else %}color: #1f2937;{% endif %}">
+        {% if data.retention_rate_pct %}{{ data.retention_rate_pct }}%{% else %}—{% endif %}
+      </div>
+      <div style="font-size: 0.8rem; color: #9ca3af; margin-top: 4px;">Renewals last 12 months</div>
+    </div>
+
+    <div style="background: #fff; border: 1px solid #e5e7eb; border-radius: 8px; padding: 20px;">
+      <div style="font-size: 0.75rem; color: #6b7280; text-transform: uppercase; font-weight: 600; letter-spacing: 0.05em;">Cash Position</div>
+      <div style="font-size: 1.8rem; font-weight: 700; margin-top: 6px;
+        {% if data.cash_position >= 0 %}color: #10b981;{% else %}color: #ef4444;{% endif %}">
+        ${{ data.cash_position|floatformat:0 }}
+      </div>
+      <div style="font-size: 0.8rem; color: #9ca3af; margin-top: 4px;">GWP minus paid losses (proxy)</div>
+    </div>
+
+    <div style="background: #fff; border: 1px solid #e5e7eb; border-radius: 8px; padding: 20px;">
+      <div style="font-size: 0.75rem; color: #6b7280; text-transform: uppercase; font-weight: 600; letter-spacing: 0.05em;">Active Policies</div>
+      <div style="font-size: 1.8rem; font-weight: 700; margin-top: 6px; color: #1f2937;">{{ data.policy_count.active }}</div>
+      <div style="font-size: 0.8rem; color: #9ca3af; margin-top: 4px;">{{ data.policy_count.total }} total (all time)</div>
+    </div>
+
+    <div style="background: #fff; border: 1px solid #e5e7eb; border-radius: 8px; padding: 20px;">
+      <div style="font-size: 0.75rem; color: #6b7280; text-transform: uppercase; font-weight: 600; letter-spacing: 0.05em;">Open Claims</div>
+      <div style="font-size: 1.8rem; font-weight: 700; margin-top: 6px;
+        {% if data.claims.open > 10 %}color: #ef4444;
+        {% elif data.claims.open > 5 %}color: #f59e0b;
+        {% else %}color: #10b981;{% endif %}">
+        {{ data.claims.open }}
+      </div>
+      <div style="font-size: 0.8rem; color: #9ca3af; margin-top: 4px;">Total incurred: ${{ data.claims.total_incurred|floatformat:0 }}</div>
+    </div>
+  </div>
+
+  <!-- GWP Trend detail -->
+  <div style="background: #fff; border: 1px solid #e5e7eb; border-radius: 8px; padding: 24px; margin-bottom: 16px;">
+    <h2 style="font-size: 1rem; font-weight: 700; margin-bottom: 16px;">GWP Breakdown</h2>
+    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;">
+      <div>
+        <div style="font-size: 0.75rem; color: #6b7280; font-weight: 600;">Last 30 Days</div>
+        <div style="font-size: 1.2rem; font-weight: 600; margin-top: 4px;">${{ data.gwp.last_30_days|floatformat:0 }}</div>
+      </div>
+      <div>
+        <div style="font-size: 0.75rem; color: #6b7280; font-weight: 600;">Prior 30 Days</div>
+        <div style="font-size: 1.2rem; font-weight: 600; margin-top: 4px;">${{ data.gwp.prior_30_days|floatformat:0 }}</div>
+      </div>
+      <div>
+        <div style="font-size: 0.75rem; color: #6b7280; font-weight: 600;">Year to Date</div>
+        <div style="font-size: 1.2rem; font-weight: 600; margin-top: 4px;">${{ data.gwp.ytd|floatformat:0 }}</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick Links -->
+  <div style="display: flex; gap: 12px; flex-wrap: wrap; margin-top: 24px;">
+    <a href="/admin/analytics/pipeline-velocity/" style="background: #f3f4f6; color: #374151; padding: 8px 14px; border-radius: 6px; font-size: 0.875rem; text-decoration: none; font-weight: 500;">Pipeline Velocity →</a>
+    <a href="/admin/analytics/retention/" style="background: #f3f4f6; color: #374151; padding: 8px 14px; border-radius: 6px; font-size: 0.875rem; text-decoration: none; font-weight: 500;">Retention Analysis →</a>
+    <a href="/admin/analytics/claims-triangle/" style="background: #f3f4f6; color: #374151; padding: 8px 14px; border-radius: 6px; font-size: 0.875rem; text-decoration: none; font-weight: 500;">Claims Triangle →</a>
+    <a href="/admin/analytics/regulatory-reporting/" style="background: #f3f4f6; color: #374151; padding: 8px 14px; border-radius: 6px; font-size: 0.875rem; text-decoration: none; font-weight: 500;">Regulatory Reports →</a>
+    <a href="/admin/analytics/broker-performance/" style="background: #f3f4f6; color: #374151; padding: 8px 14px; border-radius: 6px; font-size: 0.875rem; text-decoration: none; font-weight: 500;">Broker Performance →</a>
+  </div>
+
+</div>
+{% endblock %}

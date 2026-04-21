@@ -1,0 +1,206 @@
+{% extends "admin/base_site.html" %}
+{% load i18n %}
+
+{% block title %}Renewal Pipeline{% endblock %}
+
+{% block content %}
+<style>
+  .pipeline-board {
+    display: flex;
+    gap: 16px;
+    overflow-x: auto;
+    padding: 16px 0 24px 0;
+    min-height: 60vh;
+  }
+  .pipeline-col {
+    flex: 0 0 240px;
+    min-width: 220px;
+    background: #f8fafc;
+    border-radius: 8px;
+    padding: 12px;
+    border: 1px solid #e2e8f0;
+  }
+  .pipeline-col h3 {
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid #cbd5e1;
+  }
+  .col-not_due h3 { border-color: #94a3b8; color: #475569; }
+  .col-offered  h3 { border-color: #f59e0b; color: #92400e; }
+  .col-quoted   h3 { border-color: #3b82f6; color: #1d4ed8; }
+  .col-renewed  h3 { border-color: #22c55e; color: #15803d; }
+  .col-lapsed   h3 { border-color: #ef4444; color: #b91c1c; }
+
+  .policy-card {
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    padding: 10px 12px;
+    margin-bottom: 8px;
+    font-size: 13px;
+  }
+  .policy-card .pnum {
+    font-weight: 700;
+    font-family: monospace;
+    font-size: 12px;
+  }
+  .policy-card .company {
+    color: #334155;
+    margin: 2px 0 6px 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .policy-card .exp {
+    color: #64748b;
+    font-size: 11px;
+    margin-bottom: 8px;
+  }
+  .pipeline-actions form {
+    display: inline;
+  }
+  .pipeline-actions button {
+    font-size: 11px;
+    padding: 3px 8px;
+    border-radius: 4px;
+    border: 1px solid #cbd5e1;
+    cursor: pointer;
+    margin-right: 4px;
+    margin-bottom: 4px;
+    background: #fff;
+    color: #334155;
+  }
+  .pipeline-actions button:hover {
+    background: #f1f5f9;
+  }
+  .empty-col {
+    color: #94a3b8;
+    font-size: 12px;
+    text-align: center;
+    padding: 20px 0;
+  }
+</style>
+
+<div style="margin-bottom:16px;">
+  <h1>Renewal Pipeline</h1>
+  <p style="color:#64748b;font-size:13px;">
+    Policies expiring within 90 days, grouped by renewal stage.
+    Use the action buttons on each card to advance status and trigger automated emails.
+  </p>
+  <a href="{% url 'admin:policies_policy_changelist' %}?renewal_status=not_due" class="button" style="margin-right:8px;">View Full List</a>
+</div>
+
+<div class="pipeline-board">
+
+  <!-- NOT DUE -->
+  <div class="pipeline-col col-not_due">
+    <h3>Not Due ({{ pipeline.not_due|length }})</h3>
+    {% for policy in pipeline.not_due %}
+    <div class="policy-card">
+      <div class="pnum">
+        <a href="{% url 'admin:policies_policy_change' policy.pk %}">{{ policy.policy_number }}</a>
+      </div>
+      <div class="company">{{ policy.quote.company.entity_legal_name|truncatechars:30 }}</div>
+      <div class="exp">Expires {{ policy.expiration_date }}</div>
+      <div class="pipeline-actions">
+        <form method="post">
+          {% csrf_token %}
+          <input type="hidden" name="policy_id" value="{{ policy.pk }}">
+          <input type="hidden" name="action" value="mark_offered">
+          <button type="submit">→ Offered</button>
+        </form>
+      </div>
+    </div>
+    {% empty %}<div class="empty-col">No policies</div>{% endfor %}
+  </div>
+
+  <!-- OFFERED -->
+  <div class="pipeline-col col-offered">
+    <h3>Offered ({{ pipeline.offered|length }})</h3>
+    {% for policy in pipeline.offered %}
+    <div class="policy-card">
+      <div class="pnum">
+        <a href="{% url 'admin:policies_policy_change' policy.pk %}">{{ policy.policy_number }}</a>
+      </div>
+      <div class="company">{{ policy.quote.company.entity_legal_name|truncatechars:30 }}</div>
+      <div class="exp">Expires {{ policy.expiration_date }}</div>
+      <div class="pipeline-actions">
+        <form method="post">
+          {% csrf_token %}
+          <input type="hidden" name="policy_id" value="{{ policy.pk }}">
+          <input type="hidden" name="action" value="mark_quoted">
+          <button type="submit">→ Quoted</button>
+        </form>
+        <form method="post">
+          {% csrf_token %}
+          <input type="hidden" name="policy_id" value="{{ policy.pk }}">
+          <input type="hidden" name="action" value="mark_lapsed">
+          <button type="submit" style="color:#b91c1c;">Lapse</button>
+        </form>
+      </div>
+    </div>
+    {% empty %}<div class="empty-col">No policies</div>{% endfor %}
+  </div>
+
+  <!-- QUOTED -->
+  <div class="pipeline-col col-quoted">
+    <h3>Quoted ({{ pipeline.quoted|length }})</h3>
+    {% for policy in pipeline.quoted %}
+    <div class="policy-card">
+      <div class="pnum">
+        <a href="{% url 'admin:policies_policy_change' policy.pk %}">{{ policy.policy_number }}</a>
+      </div>
+      <div class="company">{{ policy.quote.company.entity_legal_name|truncatechars:30 }}</div>
+      <div class="exp">Expires {{ policy.expiration_date }}</div>
+      <div class="pipeline-actions">
+        <form method="post">
+          {% csrf_token %}
+          <input type="hidden" name="policy_id" value="{{ policy.pk }}">
+          <input type="hidden" name="action" value="mark_renewed">
+          <button type="submit" style="color:#15803d;">→ Renewed</button>
+        </form>
+        <form method="post">
+          {% csrf_token %}
+          <input type="hidden" name="policy_id" value="{{ policy.pk }}">
+          <input type="hidden" name="action" value="mark_lapsed">
+          <button type="submit" style="color:#b91c1c;">Lapse</button>
+        </form>
+      </div>
+    </div>
+    {% empty %}<div class="empty-col">No policies</div>{% endfor %}
+  </div>
+
+  <!-- RENEWED -->
+  <div class="pipeline-col col-renewed">
+    <h3>Renewed ({{ pipeline.renewed|length }})</h3>
+    {% for policy in pipeline.renewed %}
+    <div class="policy-card">
+      <div class="pnum">
+        <a href="{% url 'admin:policies_policy_change' policy.pk %}">{{ policy.policy_number }}</a>
+      </div>
+      <div class="company">{{ policy.quote.company.entity_legal_name|truncatechars:30 }}</div>
+      <div class="exp">Expired {{ policy.expiration_date }}</div>
+    </div>
+    {% empty %}<div class="empty-col">No policies</div>{% endfor %}
+  </div>
+
+  <!-- LAPSED / NON-RENEWED -->
+  <div class="pipeline-col col-lapsed">
+    <h3>Lapsed ({{ pipeline.lapsed|length }})</h3>
+    {% for policy in pipeline.lapsed %}
+    <div class="policy-card">
+      <div class="pnum">
+        <a href="{% url 'admin:policies_policy_change' policy.pk %}">{{ policy.policy_number }}</a>
+      </div>
+      <div class="company">{{ policy.quote.company.entity_legal_name|truncatechars:30 }}</div>
+      <div class="exp">Expired {{ policy.expiration_date }}</div>
+    </div>
+    {% empty %}<div class="empty-col">No policies</div>{% endfor %}
+  </div>
+
+</div>
+{% endblock %}

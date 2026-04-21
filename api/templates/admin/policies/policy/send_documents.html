@@ -1,0 +1,41 @@
+{% extends "admin/base_site.html" %}
+{% load i18n admin_urls %}
+
+{% block content %}
+
+<div style="margin-bottom: 20px; padding: 15px; background: var(--darkened-bg); color: var(--body-fg); border: 1px solid var(--hairline-color); border-radius: 5px;">
+    <strong>Policy:</strong> {{ policy.policy_number }}<br>
+    <strong>User:</strong> {{ user.get_full_name }} ({{ user.email }})
+</div>
+
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+
+    <fieldset class="module aligned">
+        <div class="form-row">
+            <div>
+                <label for="id_subject">Subject:</label>
+                {{ form.subject }}
+            </div>
+        </div>
+        <div class="form-row">
+            <div>
+                <label for="id_message">Message:</label>
+                {{ form.message }}
+            </div>
+        </div>
+        <div class="form-row">
+            <div>
+                <label for="id_files">Files to attach:</label>
+                <input type="file" name="files" multiple required>
+                <p class="help">Select one or more files to attach to the email.</p>
+            </div>
+        </div>
+    </fieldset>
+
+    <div class="submit-row">
+        <input type="submit" value="Send Email" class="default">
+        <a href="{% url 'admin:policies_policy_change' policy.pk %}" class="closelink">Cancel</a>
+    </div>
+</form>
+{% endblock %}

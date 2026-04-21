@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Daily Change Report</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.5;
+            color: #1D1D1D;
+            max-width: 760px;
+            margin: 0 auto;
+            padding: 24px;
+            background-color: #F9F9F9;
+        }
+        h1 {
+            font-size: 22px;
+            margin: 0 0 4px;
+        }
+        .subtitle {
+            color: #4E4E4E;
+            font-size: 13px;
+            margin-bottom: 20px;
+        }
+        .summary {
+            background: #FFFFFF;
+            border-radius: 10px;
+            padding: 14px 18px;
+            margin-bottom: 20px;
+            border: 1px solid #E8E8E8;
+        }
+        .summary strong {
+            color: #FF5C00;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #FFFFFF;
+            border-radius: 10px;
+            overflow: hidden;
+            border: 1px solid #E8E8E8;
+            margin-bottom: 20px;
+        }
+        th, td {
+            text-align: left;
+            padding: 10px 12px;
+            font-size: 13px;
+            border-bottom: 1px solid #E8E8E8;
+        }
+        th {
+            background: #F3F3F3;
+            color: #1D1D1D;
+            font-weight: 600;
+        }
+        tr:last-child td {
+            border-bottom: none;
+        }
+        .count {
+            font-weight: 600;
+            color: #FF5C00;
+        }
+        .muted {
+            color: #4E4E4E;
+            font-size: 12px;
+        }
+        .empty {
+            background: #FFFFFF;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            color: #4E4E4E;
+            border: 1px solid #E8E8E8;
+        }
+        .footer {
+            font-size: 11px;
+            color: #9A9A9A;
+            margin-top: 20px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <h1>Daily Change Report</h1>
+    <p class="subtitle">
+        Audit-log activity from {{ window_start }} to {{ window_end }} (UTC)
+    </p>
+
+    <div class="summary">
+        <strong>{{ total_entries }}</strong> log entries &middot;
+        <strong>{{ actor_count }}</strong> distinct actor(s) &middot;
+        <strong>{{ model_count }}</strong> model(s) touched
+    </div>
+
+    {% if groups %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Actor</th>
+                    <th>Model</th>
+                    <th>Changes</th>
+                    <th>First</th>
+                    <th>Last</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in groups %}
+                    <tr>
+                        <td>{{ row.actor }}</td>
+                        <td>{{ row.model }}</td>
+                        <td class="count">{{ row.count }}</td>
+                        <td class="muted">{{ row.first_ts }}</td>
+                        <td class="muted">{{ row.last_ts }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <div class="empty">No audit-log activity recorded in the last 24 hours.</div>
+    {% endif %}
+
+    <div class="footer">
+        Automated report from the Corgi monorepo &middot; generated {{ generated_at }}
+    </div>
+</body>
+</html>

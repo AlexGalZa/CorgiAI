@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Policy Cancellation Notice</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: #F9F9F9;
+            color: #1D1D1D;
+            line-height: 1.6;
+        }
+
+        .email-wrapper {
+            width: 100%;
+            background-color: #F9F9F9;
+            padding: 40px 20px;
+        }
+
+        .email-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #FFFFFF;
+            border-radius: 25px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+
+        .email-header {
+            text-align: center;
+            padding: 40px 40px 10px;
+        }
+
+        .logo {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .logo-image {
+            width: 150px;
+            height: auto;
+        }
+
+        .email-title {
+            font-size: 34px;
+            font-weight: 600;
+            line-height: 1.2;
+            color: #1D1D1D;
+            margin: 0 0 0px;
+        }
+
+        .email-body {
+            padding: 0px 40px 20px;
+        }
+
+        .greeting {
+            font-size: 16px;
+            color: #1D1D1D;
+            margin-bottom: 0px;
+        }
+
+        .message {
+            font-size: 15px;
+            color: #4E4E4E;
+            margin-bottom: 20px;
+        }
+
+        .coverages-list {
+            text-align: left;
+            margin: 0 0 24px;
+            padding: 0;
+            list-style: none;
+        }
+
+        .coverage-item {
+            display: flex;
+            align-items: center;
+            padding: 8px 0;
+            font-size: 14px;
+            color: #1D1D1D;
+        }
+
+        .coverage-marker {
+            color: #dc3545;
+            margin-right: 10px;
+            font-size: 16px;
+        }
+
+        .info-card {
+            background-color: #F9F9F9;
+            border-radius: 12px;
+            padding: 4px 0;
+            margin-bottom: 24px;
+        }
+
+        .info-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .info-table td {
+            padding: 12px 24px;
+        }
+
+        .info-table tr.info-row-border td {
+            border-bottom: 1px solid #E8E8E8;
+        }
+
+        .info-label {
+            font-size: 14px;
+            color: #4E4E4E;
+            text-align: left;
+        }
+
+        .info-value {
+            font-size: 14px;
+            font-weight: 600;
+            color: #1D1D1D;
+            text-align: right;
+        }
+
+        .cta-section {
+            text-align: center;
+            margin: 24px 0;
+        }
+
+        .cta-button {
+            display: inline-block;
+            background-color: #FF5C00;
+            color: #FFFFFF;
+            text-decoration: none;
+            padding: 14px 32px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .help-text {
+            font-size: 14px;
+            color: #4E4E4E;
+            margin-bottom: 24px;
+        }
+
+        .help-text a {
+            color: #1E4FFF;
+            text-decoration: underline;
+            font-weight: 500;
+        }
+
+        .signature {
+            font-size: 15px;
+            color: #1D1D1D;
+        }
+
+        .signature-name {
+            font-weight: 600;
+            color: #FF5C00;
+        }
+
+        .email-footer {
+            background-color: #F9F9F9;
+            padding: 15px 40px;
+            text-align: center;
+        }
+
+        .footer-links a {
+            font-size: 12px;
+            color: #4E4E4E;
+            text-decoration: none;
+            margin: 0 8px;
+        }
+
+        .footer-links a:hover {
+            color: #1E4FFF;
+        }
+
+        @media only screen and (max-width: 600px) {
+            .email-wrapper {
+                padding: 20px 10px;
+            }
+
+            .email-header {
+                padding: 30px 24px 16px;
+            }
+
+            .email-body {
+                padding: 16px 24px 30px;
+            }
+
+            .email-title {
+                font-size: 24px;
+            }
+
+            .email-footer {
+                padding: 20px 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="email-wrapper">
+        <div class="email-container">
+            <!-- Header -->
+            <div class="email-header">
+                <div class="logo">
+                    <img src="https://cdn.corgi.insure/images/corgi-flying.png" alt="Corgi" class="logo-image">
+                </div>
+                <h1 class="email-title">Policy Cancellation Notice</h1>
+            </div>
+
+            <!-- Body -->
+            <div class="email-body">
+                <p class="greeting">Hi {{ contact_name }},</p>
+
+                <p class="message">We're writing to let you know that your policy has been cancelled due to non-payment. Despite multiple attempts, we were unable to process your payment.</p>
+
+                <!-- Info Card -->
+                <div class="info-card">
+                    <table class="info-table">
+                        <tr class="info-row-border">
+                            <td class="info-label">Company</td>
+                            <td class="info-value">{{ company_name }}</td>
+                        </tr>
+                        <tr class="info-row-border">
+                            <td class="info-label">Policy Number</td>
+                            <td class="info-value">{{ policy_numbers }}</td>
+                        </tr>
+                        <tr class="info-row-border">
+                            <td class="info-label">Effective Date</td>
+                            <td class="info-value">{{ effective_date }}</td>
+                        </tr>
+                        <tr>
+                            <td class="info-label">Expiration Date</td>
+                            <td class="info-value">{{ expiration_date }}</td>
+                        </tr>
+                    </table>
+                </div>
+
+                <!-- Coverages -->
+                <ul class="coverages-list">
+                    {% for coverage in coverages %}
+                    <li class="coverage-item">
+                        <span class="coverage-marker">&times;</span>
+                        {{ coverage }}
+                    </li>
+                    {% endfor %}
+                </ul>
+
+                <p class="message">If you'd like to reinstate your coverage or have questions about your account, please don't hesitate to reach out.</p>
+
+                <!-- CTA -->
+                <div class="cta-section">
+                    <a href="mailto:hello@corgi.insure" class="cta-button" style="background-color: #FF5C00; color: #FFFFFF;">Contact Us</a>
+                </div>
+
+                <p class="signature">
+                    Thanks,<br>
+                    The Corgi Team
+                </p>
+            </div>
+
+            <!-- Footer -->
+            <div class="email-footer">
+                <div class="footer-links">
+                    <a href="#">Privacy Policy</a>
+                    <a href="#">Terms of Service</a>
+                    <a href="#">Contact Us</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

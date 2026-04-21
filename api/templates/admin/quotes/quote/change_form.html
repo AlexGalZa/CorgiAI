@@ -1,0 +1,145 @@
+{% extends "admin/change_form.html" %}
+{% load i18n admin_urls %}
+
+{% block extrastyle %}
+{{ block.super }}
+<style>
+    .quote-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin-bottom: 20px;
+        align-items: center;
+    }
+    .quote-actions .qa-sep {
+        width: 1px;
+        height: 24px;
+        background: #e5e7eb;
+        margin: 0 6px;
+    }
+    .quote-actions a {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 6px 14px;
+        background: #f3f4f6;
+        color: #374151 !important;
+        border-radius: 99px;
+        text-decoration: none;
+        font-size: 12px;
+        font-weight: 500;
+        letter-spacing: 0.2px;
+        transition: all 0.12s;
+        border: none;
+    }
+    .quote-actions a:hover {
+        background: #e5e7eb;
+    }
+    .quote-actions a .material-symbols-outlined {
+        font-size: 15px;
+    }
+    .quote-actions a.qa-primary {
+        background: #ff5c00;
+        color: #fff !important;
+    }
+    .quote-actions a.qa-primary:hover {
+        background: #cc4a00;
+    }
+    .quote-actions a.qa-danger {
+        background: #fef2f2;
+        color: #dc2626 !important;
+    }
+    .quote-actions a.qa-danger:hover {
+        background: #fecaca;
+    }
+</style>
+{% endblock %}
+
+{% block object-tools %}{% endblock %}
+{% block object-tools-items %}{% endblock %}
+{% block nav-global %}{% endblock %}
+{% block history %}{% endblock %}
+{% block content_subtitle %}{% endblock %}
+
+{% block content %}
+{% if original.pk %}
+<div class="quote-actions">
+    <a href="{{ add_custom_product_url }}">
+        <span class="material-symbols-outlined">add_circle</span>
+        Add Custom Product
+    </a>
+    <a href="{{ duplicate_url }}">
+        <span class="material-symbols-outlined">content_copy</span>
+        Duplicate Quote
+    </a>
+    <a href="{{ download_questionnaire_url }}">
+        <span class="material-symbols-outlined">download</span>
+        Download Questionnaire
+    </a>
+
+    <div class="qa-sep"></div>
+
+    {% if has_promo_code %}
+    <a href="{{ apply_promo_url }}">
+        <span class="material-symbols-outlined">local_offer</span>
+        Promo: {{ current_promo_code }}
+    </a>
+    <a href="{{ remove_promo_url }}" class="qa-danger" onclick="return confirm('Remove promo code {{ current_promo_code }}?');">
+        <span class="material-symbols-outlined">delete</span>
+        Remove Promo
+    </a>
+    {% else %}
+    <a href="{{ apply_promo_url }}">
+        <span class="material-symbols-outlined">local_offer</span>
+        Apply Promo
+    </a>
+    {% endif %}
+
+    {% if show_rerun_button %}
+    <div class="qa-sep"></div>
+    <a href="{{ rerun_url }}" class="qa-primary">
+        <span class="material-symbols-outlined">refresh</span>
+        Rerun Rating
+    </a>
+    <a href="{{ simulate_url }}">
+        <span class="material-symbols-outlined">science</span>
+        Simulate Rating
+    </a>
+    {% endif %}
+
+    {% if has_cgl_coverages or has_tech_coverages %}
+    <div class="qa-sep"></div>
+    {% endif %}
+    {% if has_cgl_coverages %}
+    <a href="{{ download_sample_cgl_url }}">
+        <span class="material-symbols-outlined">file_present</span>
+        Sample CGL Policy
+    </a>
+    {% endif %}
+    {% if has_tech_coverages %}
+    <a href="{{ download_sample_tech_url }}">
+        <span class="material-symbols-outlined">file_present</span>
+        Sample Tech Policy
+    </a>
+    {% endif %}
+
+    {% if show_activate_from_invoice %}
+    <div class="qa-sep"></div>
+    <a href="{{ activate_from_invoice_url }}" class="qa-primary">
+        <span class="material-symbols-outlined">check_circle</span>
+        Activate from Invoice
+    </a>
+    {% endif %}
+
+    <div class="qa-sep"></div>
+
+    {% if original.pk %}
+    <a href="{% url 'admin:quotes_quote_history' original.pk %}">
+        <span class="material-symbols-outlined">schedule</span>
+        History
+    </a>
+    {% endif %}
+</div>
+{% endif %}
+{{ block.super }}
+{% endblock %}

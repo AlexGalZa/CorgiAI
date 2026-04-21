@@ -1,0 +1,14 @@
+{% extends "admin/base.html" %}
+
+{% block title %}{% if subtitle %}{{ subtitle }} | {% endif %}{{ title }} | Corgi Admin{% endblock %}
+
+{% block branding %}
+<div id="site-name">
+    <a href="{% url 'admin:index' %}">Corgi Admin</a>
+</div>
+{% endblock %}
+
+{% block userlinks %}
+<a href="/admin/analytics/" target="_blank">SQL Analytics</a> |
+{{ block.super }}
+{% endblock %}

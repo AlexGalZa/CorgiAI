@@ -1,0 +1,37 @@
+name: Close Stale Issues and PRs
+
+# Nudges contributors on inactive issues / PRs and eventually closes
+# them so the backlog reflects reality. Dependabot PRs are skipped so
+# the auto-merge flow owns their lifecycle.
+
+on:
+  schedule:
+    - cron: "19 4 * * *"
+  workflow_dispatch:
+
+permissions:
+  issues: write
+  pull-requests: write
+
+jobs:
+  stale:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/stale@v9
+        with:
+          days-before-issue-stale: 60
+          days-before-issue-close: 14
+          days-before-pr-stale: 21
+          days-before-pr-close: 7
+          stale-issue-label: stale
+          stale-pr-label: stale
+          exempt-issue-labels: "security,pinned,roadmap"
+          exempt-pr-labels: "security,pinned,dependencies"
+          stale-issue-message: |
+            This issue has had no activity for 60 days. It will be closed
+            in 14 days if no further activity occurs. Reopen or add the
+            `pinned` label to keep it open.
+          stale-pr-message: |
+            This PR has had no activity for 21 days. It will be closed in
+            7 days if no further activity occurs. Push a commit or add
+            the `pinned` label to keep it open.

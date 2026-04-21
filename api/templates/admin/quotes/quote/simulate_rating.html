@@ -1,0 +1,240 @@
+{% extends "admin/base_site.html" %}
+{% load i18n admin_urls humanize %}
+
+{% block content %}
+<p style="margin-bottom: 16px; color: #999;">
+    Test what-if scenarios without saving changes to the quote.
+    <a href="{% url 'admin:quotes_quote_change' quote.id %}">Back to Quote</a>
+</p>
+
+{% if results %}
+<fieldset class="module" style="margin-bottom: 20px;">
+    <h2>Simulation Results</h2>
+    <table style="width: 100%; border-collapse: collapse;">
+        <thead>
+            <tr>
+                <th style="text-align: left; padding: 8px; border-bottom: 2px solid #ddd;">Coverage</th>
+                <th style="text-align: left; padding: 8px; border-bottom: 2px solid #ddd;">Status</th>
+                <th style="text-align: right; padding: 8px; border-bottom: 2px solid #ddd;">Premium</th>
+                <th style="text-align: left; padding: 8px; border-bottom: 2px solid #ddd;">Breakdown</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for cov_id, data in results.coverages.items %}
+            <tr>
+                <td style="padding: 8px; border-bottom: 1px solid #eee;">{{ data.display_name }}</td>
+                <td style="padding: 8px; border-bottom: 1px solid #eee;">
+                    {% if data.success %}
+                    <span style="color: #28a745; font-weight: bold;">OK</span>
+                    {% else %}
+                    <span style="color: #dc3545; font-weight: bold;">Failed</span>
+                    {% endif %}
+                </td>
+                <td style="padding: 8px; border-bottom: 1px solid #eee; text-align: right;">
+                    {% if data.premium %}${{ data.premium|floatformat:2 }}{% else %}-{% endif %}
+                </td>
+                <td style="padding: 8px; border-bottom: 1px solid #eee;">
+                    <pre style="margin: 0; font-size: 12px; white-space: pre-wrap;">{{ data.breakdown }}</pre>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+        <tfoot>
+            <tr style="font-weight: bold; font-size: 16px;">
+                <td style="padding: 12px 8px; border-top: 2px solid #ddd;" colspan="2">Total Premium (Base Annual)</td>
+                <td style="padding: 12px 8px; border-top: 2px solid #ddd; text-align: right;">${{ results.total_premium|floatformat:2 }}</td>
+                <td style="padding: 12px 8px; border-top: 2px solid #ddd;"></td>
+            </tr>
+        </tfoot>
+    </table>
+
+    {% if results.billing_summary %}
+    <h3 style="margin: 20px 0 10px 0;">Billing Summary</h3>
+    {% if results.billing_summary.promo_warning %}
+    <p style="color: #dc3545; font-weight: bold; margin-bottom: 10px;">{{ results.billing_summary.promo_warning }}</p>
+    {% endif %}
+    <table style="width: 100%; border-collapse: collapse; max-width: 600px;">
+        <tbody>
+            <tr>
+                <td style="padding: 8px; border-bottom: 1px solid #eee;">Base Annual Premium</td>
+                <td style="padding: 8px; border-bottom: 1px solid #eee; text-align: right; font-weight: bold;">${{ results.billing_summary.annual_premium|floatformat:2 }}</td>
+            </tr>
+            {% if results.billing_summary.discount_percentage %}
+            <tr>
+                <td style="padding: 8px; border-bottom: 1px solid #eee;">
+                    Promo Discount ({{ results.billing_summary.promo_code }} — {{ results.billing_summary.discount_percentage|floatformat:0 }}% off)
+                </td>
+                <td style="padding: 8px; border-bottom: 1px solid #eee; text-align: right; color: #28a745; font-weight: bold;">
+                    -${{ results.billing_summary.discount_amount|floatformat:2 }}
+                </td>
+            </tr>
+            <tr>
+                <td style="padding: 8px; border-bottom: 1px solid #eee;">Discounted Annual</td>
+                <td style="padding: 8px; border-bottom: 1px solid #eee; text-align: right; font-weight: bold;">${{ results.billing_summary.discounted_annual|floatformat:2 }}</td>
+            </tr>
+            {% endif %}
+            <tr>
+                <td style="padding: 8px; border-bottom: 1px solid #eee;">Billing Frequency</td>
+                <td style="padding: 8px; border-bottom: 1px solid #eee; text-align: right; text-transform: capitalize;">{{ results.billing_summary.billing_frequency }}</td>
+            </tr>
+            {% if results.billing_summary.billing_frequency == "monthly" %}
+            <tr style="font-size: 15px;">
+                <td style="padding: 10px 8px; border-top: 2px solid #ddd; font-weight: bold;">Total Annual (w/ surcharge)</td>
+                <td style="padding: 10px 8px; border-top: 2px solid #ddd; text-align: right; font-weight: bold;">${{ results.billing_summary.annual_amount|floatformat:2 }}</td>
+            </tr>
+            <tr style="font-size: 15px;">
+                <td style="padding: 10px 8px; font-weight: bold;">Monthly Payment</td>
+                <td style="padding: 10px 8px; text-align: right; font-weight: bold; color: #007bff;">${{ results.billing_summary.monthly_amount|floatformat:2 }}</td>
+            </tr>
+            {% else %}
+            <tr style="font-size: 15px;">
+                <td style="padding: 10px 8px; border-top: 2px solid #ddd; font-weight: bold;">Annual Payment</td>
+                <td style="padding: 10px 8px; border-top: 2px solid #ddd; text-align: right; font-weight: bold; color: #007bff;">${{ results.billing_summary.annual_amount|floatformat:2 }}</td>
+            </tr>
+            {% endif %}
+        </tbody>
+    </table>
+    {% endif %}
+</fieldset>
+{% endif %}
+
+<form method="post">
+    {% csrf_token %}
+
+    <fieldset class="module aligned">
+        <h2>Company Overrides</h2>
+        <div class="form-row">
+            <div>
+                <label for="id_revenue">Revenue:</label>
+                {{ form.revenue }}
+                <p class="help">{{ form.revenue.help_text }}</p>
+            </div>
+        </div>
+        <div class="form-row">
+            <div>
+                <label for="id_employee_count">Employee Count:</label>
+                {{ form.employee_count }}
+                <p class="help">{{ form.employee_count.help_text }}</p>
+            </div>
+        </div>
+        <div class="form-row">
+            <div>
+                <label for="id_state">State:</label>
+                {{ form.state }}
+                <p class="help">{{ form.state.help_text }}</p>
+            </div>
+        </div>
+        <div class="form-row">
+            <div>
+                <label for="id_business_description">Business Description:</label>
+                {{ form.business_description }}
+                <p class="help">{{ form.business_description.help_text }}</p>
+            </div>
+        </div>
+    </fieldset>
+
+    <fieldset class="module aligned">
+        <h2>Billing & Promo</h2>
+        <div class="form-row">
+            <div>
+                <label for="id_billing_frequency">Billing Frequency:</label>
+                {{ form.billing_frequency }}
+                <p class="help">{{ form.billing_frequency.help_text }}</p>
+            </div>
+        </div>
+        <div class="form-row">
+            <div>
+                <label for="id_promo_code">Promo Code:</label>
+                {{ form.promo_code }}
+                <p class="help">{{ form.promo_code.help_text }}</p>
+            </div>
+        </div>
+    </fieldset>
+
+    <fieldset class="module aligned">
+        <h2>Coverages</h2>
+        <div class="form-row">
+            <div>
+                {{ form.coverages }}
+                <p class="help">{{ form.coverages.help_text }}</p>
+            </div>
+        </div>
+    </fieldset>
+
+    <fieldset class="module aligned">
+        <h2>Limits & Retentions</h2>
+        <p class="help" style="padding: 0 10px;">Select limits and retentions per coverage. Sections appear when the coverage is checked above.</p>
+        {% for cov in coverage_options %}
+        <div class="lr-section" data-coverage="{{ cov.id }}" style="display: none; padding: 10px; margin: 8px 10px;">
+            <h3 style="margin: 0 0 8px 0; font-size: 14px;">{{ cov.display_name }}</h3>
+            <div style="display: flex; gap: 16px; flex-wrap: wrap;">
+                <div>
+                    <label for="lr_{{ cov.id }}_aggregate_limit">Aggregate Limit:</label>
+                    <select name="lr_{{ cov.id }}_aggregate_limit" id="lr_{{ cov.id }}_aggregate_limit" style="display: block; margin-top: 4px;">
+                        <option value="">-- Select --</option>
+                        {% for val in cov.aggregate_limits %}
+                        <option value="{{ val }}" {% if val == cov.current_aggregate %}selected{% endif %}>${{ val|intcomma }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div>
+                    <label for="lr_{{ cov.id }}_per_occurrence_limit">Per Occurrence Limit:</label>
+                    <select name="lr_{{ cov.id }}_per_occurrence_limit" id="lr_{{ cov.id }}_per_occurrence_limit" style="display: block; margin-top: 4px;">
+                        <option value="">-- Select --</option>
+                        {% for val in cov.per_occurrence_limits %}
+                        <option value="{{ val }}" {% if val == cov.current_per_occurrence %}selected{% endif %}>${{ val|intcomma }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div>
+                    <label for="lr_{{ cov.id }}_retention">Retention:</label>
+                    <select name="lr_{{ cov.id }}_retention" id="lr_{{ cov.id }}_retention" style="display: block; margin-top: 4px;">
+                        <option value="">-- Select --</option>
+                        {% for val in cov.retentions %}
+                        <option value="{{ val }}" {% if val == cov.current_retention %}selected{% endif %}>${{ val|intcomma }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </fieldset>
+
+    <fieldset class="module aligned">
+        <h2>Coverage Data / Questionnaire (JSON)</h2>
+        <div class="form-row">
+            <div style="width: 100%;">
+                {{ form.coverage_data }}
+                <p class="help">{{ form.coverage_data.help_text }}</p>
+            </div>
+        </div>
+    </fieldset>
+
+    <div class="submit-row">
+        <input type="submit" value="Run Simulation" class="default">
+        <a href="{% url 'admin:quotes_quote_change' quote.id %}" class="closelink">Back to Quote</a>
+    </div>
+</form>
+
+<script>
+(function() {
+    function updateLrSections() {
+        var checkboxes = document.querySelectorAll('input[name="coverages"]');
+        var checked = new Set();
+        checkboxes.forEach(function(cb) {
+            if (cb.checked) checked.add(cb.value);
+        });
+        document.querySelectorAll('.lr-section').forEach(function(section) {
+            var covId = section.getAttribute('data-coverage');
+            section.style.display = checked.has(covId) ? 'block' : 'none';
+        });
+    }
+
+    document.querySelectorAll('input[name="coverages"]').forEach(function(cb) {
+        cb.addEventListener('change', updateLrSections);
+    });
+
+    updateLrSections();
+})();
+</script>
+{% endblock %}

@@ -1,0 +1,14 @@
+inputSet:
+  name: on-push-master
+  identifier: onpushmaster
+  orgIdentifier: default
+  projectIdentifier: corgi
+  pipeline:
+    identifier: corgi
+    properties:
+      ci:
+        codebase:
+          build:
+            type: branch
+            spec:
+              branch: <+trigger.branch>

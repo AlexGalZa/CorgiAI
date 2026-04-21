@@ -1,0 +1,66 @@
+{% extends "admin/base_site.html" %}
+{% load i18n admin_urls %}
+
+{% block content %}
+<h1>Add User Document</h1>
+
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+
+    <fieldset class="module aligned">
+        <h2>Document Details</h2>
+        <div class="form-row">
+            <div>
+                <label for="id_user">User:</label>
+                {{ form.user }}
+                <p class="help">Select the user to upload document for</p>
+            </div>
+        </div>
+        <div class="form-row">
+            <div>
+                <label for="id_category">Category:</label>
+                {{ form.category }}
+                <p class="help">Select the type of document</p>
+            </div>
+        </div>
+        <div class="form-row">
+            <div>
+                <label for="id_title">Title:</label>
+                {{ form.title }}
+                <p class="help">{{ form.title.help_text }}</p>
+            </div>
+        </div>
+        <div class="form-row">
+            <div>
+                <label for="id_policy_numbers">Policy Numbers (optional):</label>
+                {{ form.policy_numbers }}
+                <p class="help">{{ form.policy_numbers.help_text }}</p>
+            </div>
+        </div>
+        <div class="form-row">
+            <div>
+                <label for="id_effective_date">Effective Date (optional):</label>
+                {{ form.effective_date }}
+            </div>
+        </div>
+        <div class="form-row">
+            <div>
+                <label for="id_expiration_date">Expiration Date (optional):</label>
+                {{ form.expiration_date }}
+            </div>
+        </div>
+        <div class="form-row">
+            <div>
+                <label for="id_file">File:</label>
+                {{ form.file }}
+                <p class="help">{{ form.file.help_text }}</p>
+            </div>
+        </div>
+    </fieldset>
+
+    <div class="submit-row">
+        <input type="submit" value="Upload Document" class="default">
+        <a href="{% url 'admin:users_userdocument_changelist' %}" class="closelink">Cancel</a>
+    </div>
+</form>
+{% endblock %}

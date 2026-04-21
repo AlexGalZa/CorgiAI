@@ -1,0 +1,29 @@
+{% extends "admin/change_list.html" %}
+{% load i18n unfold %}
+
+{% block content %}
+{% component "unfold/components/flex.html" with class="gap-4 mb-8 flex-nowrap" %}
+    {% component "unfold/components/card.html" with class="flex-1 min-w-0" %}
+        {% component "unfold/components/text.html" with class="text-gray-500 font-medium" %}Total Quotes{% endcomponent %}
+        {% component "unfold/components/title.html" %}{{ kpi.total|default:"0" }}{% endcomponent %}
+    {% endcomponent %}
+
+    {% component "unfold/components/card.html" with class="flex-1 min-w-0" %}
+        {% component "unfold/components/text.html" with class="text-gray-500 font-medium" %}Pending Review{% endcomponent %}
+        {% component "unfold/components/title.html" %}{{ kpi.pending|default:"0" }}{% endcomponent %}
+    {% endcomponent %}
+
+    {% component "unfold/components/card.html" with class="flex-1 min-w-0" %}
+        {% component "unfold/components/text.html" with class="text-gray-500 font-medium" %}Quoted{% endcomponent %}
+        {% component "unfold/components/title.html" %}{{ kpi.quoted|default:"0" }}{% endcomponent %}
+    {% endcomponent %}
+
+    {% component "unfold/components/card.html" with class="flex-1 min-w-0" %}
+        {% component "unfold/components/text.html" with class="text-gray-500 font-medium" %}Purchased{% endcomponent %}
+        {% component "unfold/components/title.html" %}{{ kpi.purchased|default:"0" }}{% endcomponent %}
+    {% endcomponent %}
+{% endcomponent %}
+
+{{ block.super }}
+{% endblock %}
+

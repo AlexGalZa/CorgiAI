@@ -1,0 +1,275 @@
+@import "tailwindcss";
+
+/* ═══════ DARK MODE (class strategy for Tailwind 4) ═══════ */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ═══════ RUNTIME COLOR VARIABLES (light defaults, overridden by .dark) ═══════ */
+:root {
+  --color-bg-val: #ffffff;
+  --color-surface-val: #ffffff;
+  --color-heading-val: #191919;
+  --color-body-val: #4a4a4a;
+  --color-muted-val: #949494;
+  --color-border-val: #E5E5E5;
+  --color-border-accent-val: #949494;
+  --color-success-bg-val: #edfaf1;
+  --color-danger-bg-val: #FCEBEB;
+  --color-btn-dark-bg-val: #626262;
+  --color-btn-dark-val: #191919;
+  --color-badge-orange-bg-val: #FFEFE5;
+  --color-badge-pending-bg-val: #FAEEDA;
+  --color-badge-pending-text-val: #633806;
+}
+
+.dark {
+  --color-bg-val: #0f0f0f;
+  --color-surface-val: #1a1a1a;
+  --color-heading-val: #f0f0f0;
+  --color-body-val: #b0b0b0;
+  --color-muted-val: #666666;
+  --color-border-val: #2a2a2a;
+  --color-border-accent-val: #555;
+  --color-success-bg-val: #0f2a18;
+  --color-danger-bg-val: #2a1010;
+  --color-btn-dark-bg-val: #333;
+  --color-btn-dark-val: #e0e0e0;
+  --color-badge-orange-bg-val: #2a1a0f;
+  --color-badge-pending-bg-val: #2a2210;
+  --color-badge-pending-text-val: #c9a050;
+}
+
+/* --- Design-system color rules ---
+   Color is used with intent:
+     * --color-primary          -> brand identity / CTAs / conversion moments
+     * --color-success / danger / warning -> status feedback only
+     * everything else          -> monochrome (surface/border/heading/body/muted)
+   Do NOT add identity-specific palettes (per-document, per-coverage,
+   per-carrier, per-role, etc.). If a surface needs color it is either
+   a status or a brand moment; if neither, keep it neutral.
+*/
+
+/* ═══════ TAILWIND 4 THEME — references runtime vars ═══════ */
+@theme inline {
+  --color-primary: #ff5c00;
+  --color-primary-dark: #cc4a00;
+  --color-heading: var(--color-heading-val);
+  --color-body: var(--color-body-val);
+  --color-muted: var(--color-muted-val);
+  --color-bg: var(--color-bg-val);
+  --color-surface: var(--color-surface-val);
+  --color-border: var(--color-border-val);
+  --color-border-accent: var(--color-border-accent-val);
+  --color-success: #13ba32;
+  --color-success-dark: #00911b;
+  --color-success-bg: var(--color-success-bg-val);
+  --color-danger: #A32D2D;
+  --color-danger-bg: var(--color-danger-bg-val);
+  --color-warning-bg: #fff6c1;
+  --color-warning-border: #e7c37f;
+  --color-warning-text: #8a6829;
+  --color-btn-dark-bg: var(--color-btn-dark-bg-val);
+  --color-btn-dark: var(--color-btn-dark-val);
+  --color-badge-orange-bg: var(--color-badge-orange-bg-val);
+  --color-badge-pending-bg: var(--color-badge-pending-bg-val);
+  --color-badge-pending-text: var(--color-badge-pending-text-val);
+
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-heading: 'F37 Bolton', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-serif: Georgia, serif;
+
+  --spacing-sidebar: 280px;
+  --spacing-header: 64px;
+
+  --radius-card: 24px;
+
+  /* Two canonical animations. See rules block below. */
+  --animate-enter: enter 0.2s ease-out both;
+  --animate-emphasize: emphasize 0.3s ease both;
+}
+
+/* ═══════ ADDITIONAL RUNTIME VARS (for inline var() references) ═══════ */
+:root {
+  --color-background: #ffffff;
+  --color-surface-raw: #ffffff;
+  --color-heading-raw: #1d1d1d;
+  --color-body-raw: #4a4a4a;
+  --color-muted-raw: #949494;
+  --color-border-raw: #e5e5e5;
+  --color-bg-hover: rgba(0,0,0,0.03);
+  --color-sidebar-bg: #f9f9f8;
+  --color-input-bg: #f5f5f4;
+  --color-card-bg: #ffffff;
+  --color-popup-bg: #ffffff;
+  --color-popup-hover: #f4f4f4;
+}
+
+.dark {
+  --color-background: #0f0f0f;
+  --color-surface-raw: #1a1a1a;
+  --color-heading-raw: #f0f0f0;
+  --color-body-raw: #b0b0b0;
+  --color-muted-raw: #666666;
+  --color-border-raw: #2a2a2a;
+  --color-bg-hover: rgba(255,255,255,0.05);
+  --color-sidebar-bg: #141414;
+  --color-input-bg: #1e1e1e;
+  --color-card-bg: #1a1a1a;
+  --color-popup-bg: #1e1e1e;
+  --color-popup-hover: #2a2a2a;
+}
+
+/* --- Design-system animation rules ---
+   Motion is rare and intentional. Two canonical animations exist:
+
+     * animate-enter     -> a surface arriving on screen (modals, toasts,
+                            popovers, pages, newly-rendered cards). 200ms,
+                            subtle. Smooths hard cuts / perceived-perf.
+     * animate-emphasize -> a single decisive moment (success check,
+                            confirmation tick). 300ms, pops once.
+
+   Tailwind built-ins kept: animate-spin (spinner), animate-pulse
+   (skeleton/loading) — both prevent user frustration during waits.
+
+   Do NOT add new keyframes per feature. Durations are duration-200
+   (regular) or duration-300 (emphasis).
+*/
+@keyframes enter {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes emphasize {
+  0%   { transform: scale(0.96); opacity: 0.6; }
+  60%  { transform: scale(1.02); opacity: 1; }
+  100% { transform: scale(1);    opacity: 1; }
+}
+
+/* ═══════ BASE RESET ═══════ */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+  overflow: hidden;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-sans);
+  color: var(--color-body-raw);
+  background: var(--color-background);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  display: flex;
+  flex-direction: column;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+}
+
+img {
+  display: block;
+  max-width: 100%;
+}
+
+/* ═══════ SCROLLBAR ═══════ */
+.main-scroll::-webkit-scrollbar { width: 6px; }
+.main-scroll::-webkit-scrollbar-track { background: transparent; }
+.main-scroll::-webkit-scrollbar-thumb { background: #ccc; border-radius: 3px; }
+.main-scroll::-webkit-scrollbar-thumb:hover { background: #aaa; }
+
+.sidebar-scroll::-webkit-scrollbar { width: 4px; }
+.sidebar-scroll::-webkit-scrollbar-track { background: transparent; }
+.sidebar-scroll::-webkit-scrollbar-thumb { background: #ddd; border-radius: 2px; }
+
+/* Dark mode scrollbars */
+.dark .main-scroll::-webkit-scrollbar-thumb { background: #444; }
+.dark .main-scroll::-webkit-scrollbar-thumb:hover { background: #555; }
+.dark .sidebar-scroll::-webkit-scrollbar-thumb { background: #333; }
+
+/* ═══════ DARK MODE OVERRIDES (catch bg-white patterns) ═══════ */
+.dark .bg-bg { background-color: #0f0f0f !important; }
+.dark .bg-surface { background-color: #1a1a1a !important; }
+.dark .bg-white { background-color: var(--color-card-bg) !important; }
+.dark .text-heading { color: #f0f0f0 !important; }
+.dark .text-body { color: #b0b0b0 !important; }
+.dark .text-muted { color: #666666 !important; }
+.dark .border-border { border-color: #2a2a2a !important; }
+.dark .bg-\[\#f5f5f4\] { background-color: var(--color-input-bg) !important; }
+.dark .bg-\[\#f9f9f8\] { background-color: var(--color-sidebar-bg) !important; }
+.dark .bg-\[\#fafaf9\] { background-color: var(--color-bg-hover) !important; }
+.dark .bg-\[\#f4f4f4\] { background-color: var(--color-popup-hover) !important; }
+.dark .bg-gray-50 { background-color: var(--color-bg-hover) !important; }
+.dark .border-border { border-color: var(--color-border-raw) !important; }
+.dark .text-heading { color: var(--color-heading-raw) !important; }
+.dark .text-body { color: var(--color-body-raw) !important; }
+.dark .text-muted { color: var(--color-muted-raw) !important; }
+.dark .bg-surface { background-color: var(--color-surface-raw) !important; }
+.dark .hover\:bg-gray-50:hover { background-color: var(--color-bg-hover) !important; }
+.dark .hover\:bg-\[\#f4f4f4\]:hover { background-color: var(--color-popup-hover) !important; }
+.dark .hover\:bg-\[\#fafaf9\]:hover { background-color: var(--color-bg-hover) !important; }
+.dark .hover\:bg-black\/\[\.03\]:hover { background-color: var(--color-bg-hover) !important; }
+.dark .hover\:bg-black\/\[\.04\]:hover { background-color: var(--color-bg-hover) !important; }
+.dark .hover\:text-heading:hover { color: var(--color-heading-raw) !important; }
+.dark .shadow-lg { box-shadow: 0 10px 15px -3px rgba(0,0,0,.3), 0 4px 6px -4px rgba(0,0,0,.2) !important; }
+.dark .shadow-xl { box-shadow: 0 20px 25px -5px rgba(0,0,0,.4), 0 8px 10px -6px rgba(0,0,0,.3) !important; }
+.dark .shadow-2xl { box-shadow: 0 25px 50px -12px rgba(0,0,0,.5) !important; }
+
+/* ═══════ CUSTOM SELECT ARROW ═══════ */
+select.coi-select {
+  -webkit-appearance: none;
+  appearance: none;
+  padding-right: 28px;
+  background-image: url("data:image/svg+xml,%3Csvg width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23949494' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+  background-size: 14px 14px;
+}
+
+/* ═══════ PAGE TITLE italic accent ═══════ */
+.page-title-accent {
+  font-family: Georgia, serif;
+  font-style: italic;
+  color: var(--color-primary);
+  font-weight: normal;
+}
+
+/* ═══════ NUCLEAR DARK MODE — html/body level ═══════ */
+html.dark,
+html[data-theme="dark"] {
+  background-color: #0f0f0f !important;
+  color-scheme: dark;
+}
+html.dark body,
+html[data-theme="dark"] body {
+  background-color: #0f0f0f !important;
+  color: #b0b0b0 !important;
+}
+
+/* ═══════ DARK MODE — comprehensive overrides ═══════ */
+.dark .bg-\[rgba\(255\,222\,204\,0\.2\)\] { background-color: rgba(255, 92, 0, 0.1) !important; }
+.dark .bg-\[rgba\(255\,222\,204\,0\.5\)\] { background-color: rgba(255, 92, 0, 0.15) !important; }
+.dark .text-\[\#1c1b18\] { color: #f0f0f0 !important; }
+.dark .text-\[\#191919\] { color: #f0f0f0 !important; }
+.dark .text-\[\#6b6b6b\] { color: #888 !important; }
+.dark .text-\[\#4a4a4a\] { color: #b0b0b0 !important; }
+.dark .text-\[\#949494\] { color: #666 !important; }
+.dark .border-\[\#e5e5e3\] { border-color: #2a2a2a !important; }
+.dark .border-\[\#E5E5E5\] { border-color: #2a2a2a !important; }
+.dark .bg-\[\#f9f9f8\] { background-color: #141414 !important; }
+.dark .bg-\[\#fafaf9\] { background-color: #161616 !important; }
+.dark .bg-\[\#f5f5f4\] { background-color: #1e1e1e !important; }
+.dark .bg-\[\#f3f4f6\] { background-color: #1e1e1e !important; }
+.dark .bg-\[\#f4f4f4\] { background-color: #1e1e1e !important; }
+.dark .hover\:bg-\[\#fafaf9\]:hover { background-color: #1e1e1e !important; }
+.dark .hover\:bg-black\/\[\.03\]:hover { background-color: rgba(255,255,255,0.05) !important; }
+.dark .hover\:bg-black\/\[\.04\]:hover { background-color: rgba(255,255,255,0.06) !important; }
+.dark .shadow-sm { box-shadow: 0 1px 2px rgba(0,0,0,0.3) !important; }
+.dark .shadow-lg { box-shadow: 0 10px 25px rgba(0,0,0,0.4) !important; }
+.dark .shadow-2xl { box-shadow: 0 25px 50px rgba(0,0,0,0.5) !important; }
+.dark input, .dark textarea, .dark select { background-color: #1e1e1e !important; color: #e0e0e0 !important; border-color: #2a2a2a !important; }
+.dark input::placeholder, .dark textarea::placeholder { color: #555 !important; }

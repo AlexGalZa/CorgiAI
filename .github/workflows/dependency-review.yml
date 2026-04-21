@@ -1,0 +1,26 @@
+name: Dependency Review
+
+# Blocks PRs that add new dependencies with known vulnerabilities or
+# licenses we don't want. Only runs on PRs; no-op on pushes.
+
+on:
+  pull_request:
+    branches: [master]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  review:
+    name: Review new dependencies
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/dependency-review-action@v4
+        with:
+          fail-on-severity: high
+          comment-summary-in-pr: on-failure
+          # Deny strong-copyleft licenses unless explicitly approved.
+          deny-licenses: AGPL-3.0, GPL-2.0, GPL-3.0

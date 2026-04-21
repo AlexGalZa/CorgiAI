@@ -1,0 +1,84 @@
+{% extends "admin/base_site.html" %}
+{% load humanize %}
+
+{% block title %}Underwriting Workbench{% endblock %}
+
+{% block content %}
+<div style="max-width: 1200px;">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+    <h1 style="margin: 0;">🔬 Underwriting Workbench</h1>
+    <span style="background: #fef9c3; color: #92400e; padding: 4px 12px; border-radius: 20px; font-size: 13px; font-weight: 600;">
+      {{ quotes|length }} pending review
+    </span>
+  </div>
+
+  {% if not quotes %}
+  <div style="background: #f0fdf4; border: 1px solid #86efac; padding: 32px; border-radius: 8px; text-align: center;">
+    <div style="font-size: 32px; margin-bottom: 8px;">✅</div>
+    <div style="font-size: 16px; color: #15803d; font-weight: 600;">All clear — no quotes pending review</div>
+    <div style="font-size: 13px; color: #16a34a; margin-top: 4px;">New submissions requiring review will appear here.</div>
+  </div>
+  {% else %}
+  <div style="background: white; border: 1px solid #e5e7eb; border-radius: 8px; overflow: hidden;">
+    <table style="width: 100%; border-collapse: collapse; font-size: 13px;">
+      <thead>
+        <tr style="background: #f9fafb; border-bottom: 2px solid #e5e7eb;">
+          <th style="padding: 10px 14px; text-align: left; font-weight: 600; color: #374151;">Quote #</th>
+          <th style="padding: 10px 14px; text-align: left; font-weight: 600; color: #374151;">Company</th>
+          <th style="padding: 10px 14px; text-align: left; font-weight: 600; color: #374151;">Coverages</th>
+          <th style="padding: 10px 14px; text-align: right; font-weight: 600; color: #374151;">Amount</th>
+          <th style="padding: 10px 14px; text-align: left; font-weight: 600; color: #374151;">State</th>
+          <th style="padding: 10px 14px; text-align: left; font-weight: 600; color: #374151;">Submitted</th>
+          <th style="padding: 10px 14px; text-align: left; font-weight: 600; color: #374151;">Contact</th>
+          <th style="padding: 10px 14px; text-align: center; font-weight: 600; color: #374151;">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for quote in quotes %}
+        <tr style="border-bottom: 1px solid #f3f4f6;" onmouseover="this.style.background='#fafafa'" onmouseout="this.style.background='white'">
+          <td style="padding: 10px 14px;">
+            <a href="{% url 'admin:underwriting_workbench_detail' quote.pk %}" style="font-weight: 600; color: #2563eb; text-decoration: none;">
+              {{ quote.quote_number }}
+            </a>
+          </td>
+          <td style="padding: 10px 14px;">
+            <div style="font-weight: 500;">{{ quote.company.entity_legal_name|default:"—" }}</div>
+            {% if quote.company.last_12_months_revenue %}
+            <div style="font-size: 11px; color: #9ca3af;">${{ quote.company.last_12_months_revenue|floatformat:0|intcomma }} revenue</div>
+            {% endif %}
+          </td>
+          <td style="padding: 10px 14px;">
+            {% for cov in quote.coverages %}
+            <span style="display: inline-block; background: #eff6ff; color: #1d4ed8; padding: 1px 6px; border-radius: 3px; font-size: 11px; margin: 1px;">
+              {{ cov|cut:"custom-"|replace_underscores:"-"|title }}
+            </span>
+            {% endfor %}
+          </td>
+          <td style="padding: 10px 14px; text-align: right;">
+            {% if quote.quote_amount %}${{ quote.quote_amount|floatformat:0|intcomma }}{% else %}—{% endif %}
+          </td>
+          <td style="padding: 10px 14px;">
+            {% if quote.company.business_address %}{{ quote.company.business_address.state }}{% else %}—{% endif %}
+          </td>
+          <td style="padding: 10px 14px; color: #6b7280; white-space: nowrap;">
+            {{ quote.created_at|date:"M d, Y" }}
+          </td>
+          <td style="padding: 10px 14px;">
+            {% if quote.user %}
+            <a href="mailto:{{ quote.user.email }}" style="color: #6b7280; text-decoration: none; font-size: 12px;">{{ quote.user.email }}</a>
+            {% else %}—{% endif %}
+          </td>
+          <td style="padding: 10px 14px; text-align: center;">
+            <a href="{% url 'admin:underwriting_workbench_detail' quote.pk %}"
+               style="background: #2563eb; color: white; padding: 5px 12px; border-radius: 5px; font-size: 12px; text-decoration: none; font-weight: 500;">
+              Review →
+            </a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

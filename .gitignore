@@ -1,0 +1,53 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.egg-info/
+*.egg
+venv/
+.venv/
+*.sqlite3
+
+# Node
+node_modules/
+.next/
+dist/
+.turbo/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Claude Code / OMC agent workspaces
+.claude/
+.omc/
+
+# Environment
+.env
+.env.local
+*.env.local
+.env.production
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.backup
+*.tfvars
+
+# Docker volumes
+postgres_data/
+
+# Build
+staticfiles/
+*.log
+
+# AIB
+aib/.vite/
+aib/client/dist/
+aib/uploads/

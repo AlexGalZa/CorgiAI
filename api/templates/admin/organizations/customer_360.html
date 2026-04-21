@@ -1,0 +1,158 @@
+{% extends "admin/base_site.html" %}
+{% load humanize %}
+
+{% block title %}Customer 360 — {{ org.name }}{% endblock %}
+
+{% block content %}
+<div style="max-width: 1200px;">
+
+  {# Header #}
+  <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px;">
+    <div>
+      <h1 style="margin: 0 0 4px; font-size: 22px;">🌐 Customer 360 — {{ org.name }}</h1>
+      <div style="font-size: 13px; color: #9ca3af;">
+        Owner: <strong>{{ org.owner.email }}</strong>
+        {% if org.industry %} · {{ org.industry }}{% endif %}
+        · Created {{ org.created_at|date:"M d, Y" }}
+      </div>
+    </div>
+    <a href="{% url 'admin:organizations_organization_change' org.pk %}"
+       style="background: #f3f4f6; border: 1px solid #e5e7eb; padding: 6px 12px; border-radius: 6px; font-size: 12px; text-decoration: none; color: #374151;">
+      ↗ Admin record
+    </a>
+  </div>
+
+  {# Stats Row #}
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin-bottom: 28px;">
+    <div style="background: white; border: 1px solid #e5e7eb; padding: 14px; border-radius: 8px; text-align: center;">
+      <div style="font-size: 24px; font-weight: 700; color: #2563eb;">{{ stats.total_quotes }}</div>
+      <div style="font-size: 11px; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.05em; margin-top: 2px;">Quotes</div>
+    </div>
+    <div style="background: white; border: 1px solid #e5e7eb; padding: 14px; border-radius: 8px; text-align: center;">
+      <div style="font-size: 24px; font-weight: 700; color: {% if stats.active_policies > 0 %}#16a34a{% else %}#9ca3af{% endif %};">{{ stats.active_policies }}</div>
+      <div style="font-size: 11px; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.05em; margin-top: 2px;">Active Policies</div>
+    </div>
+    <div style="background: white; border: 1px solid #e5e7eb; padding: 14px; border-radius: 8px; text-align: center;">
+      <div style="font-size: 24px; font-weight: 700; color: {% if stats.open_claims > 0 %}#f97316{% else %}#9ca3af{% endif %};">{{ stats.open_claims }}</div>
+      <div style="font-size: 11px; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.05em; margin-top: 2px;">Open Claims</div>
+    </div>
+    <div style="background: white; border: 1px solid #e5e7eb; padding: 14px; border-radius: 8px; text-align: center;">
+      <div style="font-size: 24px; font-weight: 700; color: #16a34a;">${{ stats.total_paid|floatformat:0|intcomma }}</div>
+      <div style="font-size: 11px; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.05em; margin-top: 2px;">Total Paid</div>
+    </div>
+    <div style="background: white; border: 1px solid #e5e7eb; padding: 14px; border-radius: 8px; text-align: center;">
+      <div style="font-size: 24px; font-weight: 700; color: #374151;">{{ stats.total_certificates }}</div>
+      <div style="font-size: 11px; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.05em; margin-top: 2px;">Certificates</div>
+    </div>
+    <div style="background: white; border: 1px solid #e5e7eb; padding: 14px; border-radius: 8px; text-align: center;">
+      <div style="font-size: 24px; font-weight: 700; color: #374151;">{{ members|length }}</div>
+      <div style="font-size: 11px; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.05em; margin-top: 2px;">Team Members</div>
+    </div>
+  </div>
+
+  <div style="display: grid; grid-template-columns: 1fr 340px; gap: 24px; align-items: start;">
+
+    {# Main: Timeline #}
+    <div>
+      <h2 style="font-size: 16px; font-weight: 700; margin-bottom: 16px; color: #111827;">📅 Activity Timeline</h2>
+
+      {% if not timeline %}
+      <div style="background: #f9fafb; border: 1px solid #e5e7eb; padding: 24px; border-radius: 8px; text-align: center; color: #9ca3af;">
+        No activity yet.
+      </div>
+      {% else %}
+      <div style="position: relative; padding-left: 28px;">
+        {# Vertical line #}
+        <div style="position: absolute; left: 9px; top: 0; bottom: 0; width: 2px; background: #e5e7eb;"></div>
+
+        {% for event in timeline %}
+        <div style="position: relative; margin-bottom: 16px;">
+          {# Dot #}
+          <div style="position: absolute; left: -22px; top: 12px; width: 10px; height: 10px; border-radius: 50%; background: {{ event.color }}; border: 2px solid white; box-shadow: 0 0 0 2px {{ event.color }};"></div>
+
+          <div style="background: white; border: 1px solid #e5e7eb; border-radius: 8px; padding: 12px 14px;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 8px;">
+              <div style="flex: 1;">
+                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 3px;">
+                  <span style="font-size: 14px;">{{ event.icon }}</span>
+                  <a href="{{ event.url }}" style="font-size: 13px; font-weight: 600; color: #111827; text-decoration: none;">{{ event.title }}</a>
+                  <span style="background: {{ event.color }}22; color: {{ event.color }}; padding: 1px 7px; border-radius: 3px; font-size: 10px; font-weight: 600;">{{ event.badge }}</span>
+                </div>
+                {% if event.description %}
+                <div style="font-size: 12px; color: #6b7280; line-height: 1.4;">{{ event.description }}</div>
+                {% endif %}
+              </div>
+              <div style="font-size: 11px; color: #9ca3af; white-space: nowrap; text-align: right; flex-shrink: 0;">
+                {{ event.date|date:"M d, Y" }}<br>
+                <span style="font-size: 10px;">{{ event.date|date:"H:i" }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+    </div>
+
+    {# Right: Quick Lists #}
+    <div>
+
+      {# Team Members #}
+      {% if members %}
+      <div style="background: white; border: 1px solid #e5e7eb; border-radius: 8px; padding: 16px; margin-bottom: 16px;">
+        <h3 style="font-size: 14px; font-weight: 700; margin: 0 0 12px; color: #111827;">👥 Team Members</h3>
+        {% for member in members %}
+        <div style="display: flex; justify-content: space-between; align-items: center; padding: 6px 0; border-bottom: 1px solid #f9fafb; font-size: 12px;">
+          <div>
+            <div style="font-weight: 500; color: #374151;">{{ member.user.email }}</div>
+            <div style="color: #9ca3af; font-size: 11px;">{{ member.user.get_full_name|default:"" }}</div>
+          </div>
+          <span style="background: {% if member.role == 'owner' %}#fef2f2{% elif member.role == 'editor' %}#eff6ff{% else %}#f9fafb{% endif %}; color: {% if member.role == 'owner' %}#dc2626{% elif member.role == 'editor' %}#2563eb{% else %}#6b7280{% endif %}; padding: 1px 7px; border-radius: 4px; font-size: 10px; font-weight: 600;">
+            {{ member.role }}
+          </span>
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+
+      {# Active Policies Quick View #}
+      {% if policies %}
+      <div style="background: white; border: 1px solid #e5e7eb; border-radius: 8px; padding: 16px; margin-bottom: 16px;">
+        <h3 style="font-size: 14px; font-weight: 700; margin: 0 0 12px; color: #111827;">🛡️ Policies</h3>
+        {% for policy in policies|slice:":8" %}
+        <div style="padding: 6px 0; border-bottom: 1px solid #f9fafb; font-size: 12px;">
+          <div style="display: flex; justify-content: space-between;">
+            <a href="{% url 'admin:policies_policy_change' policy.pk %}" style="font-weight: 500; color: #2563eb; text-decoration: none;">
+              {{ policy.policy_number }}
+            </a>
+            <span style="font-size: 10px; background: {% if policy.status == 'active' %}#dcfce7{% elif policy.status == 'past_due' %}#fef9c3{% else %}#fee2e2{% endif %}; color: {% if policy.status == 'active' %}#15803d{% elif policy.status == 'past_due' %}#92400e{% else %}#991b1b{% endif %}; padding: 1px 6px; border-radius: 3px; font-weight: 600;">{{ policy.status }}</span>
+          </div>
+          <div style="color: #9ca3af;">{{ policy.coverage_type|cut:"custom-"|title }}</div>
+        </div>
+        {% endfor %}
+        {% if policies|length > 8 %}
+        <div style="font-size: 11px; color: #9ca3af; margin-top: 6px; text-align: center;">+{{ policies|length|add:"-8" }} more</div>
+        {% endif %}
+      </div>
+      {% endif %}
+
+      {# Recent Payments #}
+      {% if payments %}
+      <div style="background: white; border: 1px solid #e5e7eb; border-radius: 8px; padding: 16px; margin-bottom: 16px;">
+        <h3 style="font-size: 14px; font-weight: 700; margin: 0 0 12px; color: #111827;">💳 Recent Payments</h3>
+        {% for pay in payments|slice:":8" %}
+        <div style="display: flex; justify-content: space-between; align-items: center; padding: 5px 0; border-bottom: 1px solid #f9fafb; font-size: 12px;">
+          <div>
+            <span style="font-weight: 500;">${{ pay.amount|floatformat:2 }}</span>
+            <span style="color: #9ca3af; margin-left: 6px;">{{ pay.paid_at|date:"M d" }}</span>
+          </div>
+          <span style="font-size: 10px; background: {% if pay.status == 'paid' %}#dcfce7{% elif pay.status == 'failed' %}#fee2e2{% else %}#fef9c3{% endif %}; color: {% if pay.status == 'paid' %}#15803d{% elif pay.status == 'failed' %}#991b1b{% else %}#92400e{% endif %}; padding: 1px 6px; border-radius: 3px; font-weight: 600;">{{ pay.status }}</span>
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+
+    </div>
+  </div>
+</div>
+{% endblock %}

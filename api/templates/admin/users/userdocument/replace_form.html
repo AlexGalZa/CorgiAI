@@ -1,0 +1,33 @@
+{% extends "admin/base_site.html" %}
+{% load i18n admin_urls %}
+
+{% block content %}
+<h1>{{ title }}</h1>
+
+<div style="margin-bottom: 1.5em; padding: 1em; background-color: #f8f9fa; border-radius: 4px;">
+    <h3 style="margin-top: 0;">Current File</h3>
+    <p><strong>Filename:</strong> {{ document.original_filename }}</p>
+    <p><strong>Size:</strong> {{ document.file_size|floatformat:0 }} bytes</p>
+    <p><strong>Uploaded:</strong> {{ document.created_at }}</p>
+</div>
+
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+
+    <fieldset class="module aligned">
+        <h2>Upload Replacement File</h2>
+        <div class="form-row">
+            <div>
+                <label for="id_file">New File:</label>
+                {{ form.file }}
+                <p class="help">{{ form.file.help_text }}</p>
+            </div>
+        </div>
+    </fieldset>
+
+    <div class="submit-row">
+        <input type="submit" value="Replace File" class="default">
+        <a href="{% url 'admin:users_userdocument_change' document.id %}" class="closelink">Cancel</a>
+    </div>
+</form>
+{% endblock %}

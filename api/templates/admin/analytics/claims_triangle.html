@@ -1,0 +1,111 @@
+{% extends "admin/base_site.html" %}
+{% load i18n %}
+
+{% block title %}Claims Development Triangle{% endblock %}
+
+{% block content %}
+<div style="padding: 20px 0;">
+  <h1 style="font-size: 1.6rem; font-weight: 700; margin-bottom: 4px;">Claims Development Triangle</h1>
+  <p style="color: #666; margin-bottom: 24px;">
+    Standard actuarial loss development triangle — cumulative paid and incurred losses by accident year and development period.
+    Generated: {{ data.generated_at }}
+  </p>
+
+  <!-- Summary Cards -->
+  <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 32px;">
+    <div style="background: #fff; border: 1px solid #e5e7eb; border-radius: 8px; padding: 16px;">
+      <div style="font-size: 0.75rem; color: #6b7280; text-transform: uppercase; font-weight: 600;">Total Paid Losses</div>
+      <div style="font-size: 1.5rem; font-weight: 700; margin-top: 4px;">${{ data.summary.total_paid|floatformat:0 }}</div>
+    </div>
+    <div style="background: #fff; border: 1px solid #e5e7eb; border-radius: 8px; padding: 16px;">
+      <div style="font-size: 0.75rem; color: #6b7280; text-transform: uppercase; font-weight: 600;">Total Incurred</div>
+      <div style="font-size: 1.5rem; font-weight: 700; margin-top: 4px;">${{ data.summary.total_incurred|floatformat:0 }}</div>
+    </div>
+    <div style="background: #fff; border: 1px solid #e5e7eb; border-radius: 8px; padding: 16px;">
+      <div style="font-size: 0.75rem; color: #6b7280; text-transform: uppercase; font-weight: 600;">Open Claims</div>
+      <div style="font-size: 1.5rem; font-weight: 700; color: #f59e0b; margin-top: 4px;">{{ data.summary.open_claims }}</div>
+    </div>
+    <div style="background: #fff; border: 1px solid #e5e7eb; border-radius: 8px; padding: 16px;">
+      <div style="font-size: 0.75rem; color: #6b7280; text-transform: uppercase; font-weight: 600;">Closed Claims</div>
+      <div style="font-size: 1.5rem; font-weight: 700; color: #10b981; margin-top: 4px;">{{ data.summary.closed_claims }}</div>
+    </div>
+  </div>
+
+  {% if data.accident_years %}
+
+  <!-- Paid Loss Triangle -->
+  <div style="background: #fff; border: 1px solid #e5e7eb; border-radius: 8px; padding: 24px; margin-bottom: 24px; overflow-x: auto;">
+    <h2 style="font-size: 1rem; font-weight: 700; margin-bottom: 16px;">Cumulative Paid Losses ($)</h2>
+    <table style="width: 100%; border-collapse: collapse; font-size: 0.875rem;">
+      <thead>
+        <tr style="background: #f9fafb;">
+          <th style="text-align: left; padding: 8px 12px; border-bottom: 2px solid #e5e7eb; white-space: nowrap;">Accident Year</th>
+          {% for dp in data.development_periods %}
+          <th style="text-align: right; padding: 8px 12px; border-bottom: 2px solid #e5e7eb; white-space: nowrap;">Dev {{ dp }}</th>
+          {% endfor %}
+        </tr>
+      </thead>
+      <tbody>
+        {% for ay in data.accident_years %}
+        <tr style="border-bottom: 1px solid #f3f4f6;">
+          <td style="padding: 8px 12px; font-weight: 600;">{{ ay }}</td>
+          {% for dp in data.development_periods %}
+          <td style="text-align: right; padding: 8px 12px; color: {% if data.paid_triangle|dictsort:ay %}#1f2937{% else %}#9ca3af{% endif %};">
+            {% with cell=data.paid_triangle|default_if_none:"" %}
+              {% if ay in data.paid_triangle and dp in data.paid_triangle|default_if_none:"" %}
+                —
+              {% else %}
+                —
+              {% endif %}
+            {% endwith %}
+          </td>
+          {% endfor %}
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    <p style="font-size: 0.75rem; color: #9ca3af; margin-top: 12px;">
+      Dev 0 = accident year through year-end. Dev 1 = 12 months of development. Cells below the diagonal are future periods (not yet available).
+    </p>
+  </div>
+
+  <!-- Development Factors -->
+  {% if data.development_factors.paid %}
+  <div style="background: #fff; border: 1px solid #e5e7eb; border-radius: 8px; padding: 24px; margin-bottom: 24px; overflow-x: auto;">
+    <h2 style="font-size: 1rem; font-weight: 700; margin-bottom: 16px;">Age-to-Age Development Factors (Link Ratios)</h2>
+    <table style="border-collapse: collapse; font-size: 0.875rem;">
+      <thead>
+        <tr style="background: #f9fafb;">
+          <th style="text-align: left; padding: 8px 16px; border-bottom: 2px solid #e5e7eb;">Period</th>
+          <th style="text-align: right; padding: 8px 16px; border-bottom: 2px solid #e5e7eb;">Paid LDF</th>
+          <th style="text-align: right; padding: 8px 16px; border-bottom: 2px solid #e5e7eb;">Incurred LDF</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for label, paid_ldf in data.development_factors.paid.items %}
+        <tr style="border-bottom: 1px solid #f3f4f6;">
+          <td style="padding: 8px 16px; font-weight: 500;">{{ label }}</td>
+          <td style="text-align: right; padding: 8px 16px;">{{ paid_ldf|default:"—" }}</td>
+          <td style="text-align: right; padding: 8px 16px;">{{ data.development_factors.incurred|default_if_none:""|get_item:label|default:"—" }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    <p style="font-size: 0.75rem; color: #9ca3af; margin-top: 12px;">
+      LDF = Loss Development Factor. Values &gt; 1.0 indicate losses are still developing upward.
+    </p>
+  </div>
+  {% endif %}
+
+  {% else %}
+  <div style="background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px; padding: 40px; text-align: center; color: #6b7280;">
+    <p style="font-size: 1rem;">No claims data available to build the triangle.</p>
+    <p style="font-size: 0.875rem; margin-top: 8px;">Claims with incident dates will appear here once filed.</p>
+  </div>
+  {% endif %}
+
+  <div style="margin-top: 24px;">
+    <a href="/admin/" style="color: #6b7280; font-size: 0.875rem;">← Back to Dashboard</a>
+  </div>
+</div>
+{% endblock %}

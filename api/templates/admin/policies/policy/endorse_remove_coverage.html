@@ -1,0 +1,49 @@
+{% extends "admin/base_site.html" %}
+{% load i18n admin_urls %}
+
+{% block content %}
+
+<div style="margin-bottom: 20px; padding: 15px; background: var(--darkened-bg); color: var(--body-fg); border: 1px solid var(--hairline-color); border-radius: 5px;">
+    <strong>Policy:</strong> {{ policy.policy_number }}<br>
+    <strong>Coverage:</strong> {{ policy.coverage_type }}<br>
+    <strong>Premium:</strong> ${{ policy.premium }}<br>
+    <strong>Billing:</strong> {{ policy.billing_frequency }}<br>
+    <strong>Effective:</strong> {{ policy.effective_date }} &mdash; {{ policy.expiration_date }}
+</div>
+
+<div style="margin-bottom: 20px; padding: 15px; background: #fff3cd; color: #856404; border: 1px solid #ffc107; border-radius: 5px;">
+    <strong>Estimated Pro-Rated Refund:</strong> ${{ estimated_refund }}<br>
+    <small>Proration factor: {{ proration_factor }} (remaining term / full term)</small>
+</div>
+
+<div style="margin-bottom: 20px; padding: 15px; background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; border-radius: 5px;">
+    <strong>Warning:</strong> This will cancel this coverage and issue a pro-rated refund. This action cannot be undone.
+</div>
+
+<form method="post">
+    {% csrf_token %}
+
+    <fieldset class="module aligned">
+        <div class="form-row">
+            <div>
+                <label for="id_confirm">{{ form.confirm.label }}:</label>
+                {{ form.confirm }}
+                {% if form.confirm.errors %}<ul class="errorlist">{% for e in form.confirm.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+            </div>
+        </div>
+        <div class="form-row">
+            <div>
+                <label for="id_reason">{{ form.reason.label }}:</label>
+                {{ form.reason }}
+                <p class="help">Explain why this coverage is being removed.</p>
+                {% if form.reason.errors %}<ul class="errorlist">{% for e in form.reason.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+            </div>
+        </div>
+    </fieldset>
+
+    <div class="submit-row">
+        <input type="submit" value="Remove Coverage" class="default" style="background: #dc3545; border-color: #dc3545;">
+        <a href="{% url 'admin:policies_policy_change' policy.pk %}" class="closelink">Cancel</a>
+    </div>
+</form>
+{% endblock %}

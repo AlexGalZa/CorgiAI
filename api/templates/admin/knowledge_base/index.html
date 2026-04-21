@@ -1,0 +1,85 @@
+{% extends "admin/base_site.html" %}
+{% load i18n %}
+
+{% block title %}Knowledge Base — {{ site_title }}{% endblock %}
+
+{% block content %}
+<div style="max-width: 900px; margin: 0 auto; padding: 24px 0;">
+
+  <!-- Header -->
+  <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px;">
+    <div>
+      <h1 style="margin: 0 0 4px 0; font-size: 22px; font-weight: 700;">📚 Knowledge Base</h1>
+      <p style="margin: 0; color: var(--body-fg, #666); font-size: 14px;">
+        Internal resources for Corgi staff — {{ total_articles }} article{{ total_articles|pluralize }}
+      </p>
+    </div>
+    {% if perms.knowledge_base.add_knowledgearticle %}
+    <a href="{% url 'admin:knowledge_base_knowledgearticle_add' %}" class="button default"
+       style="text-decoration: none; padding: 8px 16px; border-radius: 6px;">
+      + New Article
+    </a>
+    {% endif %}
+  </div>
+
+  <!-- Search & Filter -->
+  <form method="get" style="display: flex; gap: 10px; margin-bottom: 28px; flex-wrap: wrap;">
+    <input
+      type="search"
+      name="q"
+      value="{{ query }}"
+      placeholder="Search articles…"
+      style="flex: 1; min-width: 200px; padding: 8px 12px; border: 1px solid var(--border-color, #ddd); border-radius: 6px; font-size: 14px;"
+    />
+    <select name="category" style="padding: 8px 12px; border: 1px solid var(--border-color, #ddd); border-radius: 6px; font-size: 14px;">
+      <option value="">All categories</option>
+      {% for value, label in category_choices %}
+      <option value="{{ value }}" {% if category_filter == value %}selected{% endif %}>{{ label }}</option>
+      {% endfor %}
+    </select>
+    <button type="submit" class="button" style="padding: 8px 16px;">Search</button>
+    {% if query or category_filter %}
+    <a href="{% url 'knowledge_base_index' %}" style="padding: 8px 12px; font-size: 14px; color: var(--body-fg); text-decoration: none; display: flex; align-items: center;">Clear</a>
+    {% endif %}
+  </form>
+
+  <!-- Results -->
+  {% if not categories and query %}
+  <div style="text-align: center; padding: 60px 20px; color: var(--body-fg);">
+    <p style="font-size: 36px; margin-bottom: 12px;">🔍</p>
+    <p style="font-size: 16px; font-weight: 600; margin-bottom: 6px;">No results for "{{ query }}"</p>
+    <p style="font-size: 14px;">Try different keywords or <a href="{% url 'knowledge_base_index' %}">browse all articles</a>.</p>
+  </div>
+  {% else %}
+  {% for cat_value, cat_data in categories.items %}
+  <section style="margin-bottom: 36px;">
+    <h2 style="font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--body-quiet-color, #888); margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border-color, #eee);">
+      {{ cat_data.label }}
+      <span style="font-weight: 400; font-size: 12px; margin-left: 4px;">({{ cat_data.articles|length }})</span>
+    </h2>
+    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px;">
+      {% for article in cat_data.articles %}
+      <a href="{% url 'knowledge_base_article' article.slug %}"
+         style="display: block; padding: 14px 16px; border: 1px solid var(--border-color, #ddd); border-radius: 10px; text-decoration: none; color: inherit; transition: box-shadow 0.15s, border-color 0.15s;"
+         onmouseover="this.style.boxShadow='0 2px 8px rgba(0,0,0,0.1)'; this.style.borderColor='#ff5c00';"
+         onmouseout="this.style.boxShadow='none'; this.style.borderColor='var(--border-color, #ddd)';"
+      >
+        <p style="margin: 0 0 4px 0; font-weight: 600; font-size: 14px;">{{ article.title }}</p>
+        {% if article.tags %}
+        <p style="margin: 0 0 8px 0; font-size: 11px; color: var(--body-quiet-color, #888);">{{ article.tags }}</p>
+        {% endif %}
+        <div style="display: flex; align-items: center; justify-content: space-between; font-size: 11px; color: var(--body-quiet-color, #888);">
+          <span>~{{ article.reading_time_minutes }} min read</span>
+          <span>{{ article.view_count }} views</span>
+        </div>
+      </a>
+      {% empty %}
+      <p style="color: var(--body-quiet-color); font-size: 14px;">No articles in this category yet.</p>
+      {% endfor %}
+    </div>
+  </section>
+  {% endfor %}
+  {% endif %}
+
+</div>
+{% endblock %}

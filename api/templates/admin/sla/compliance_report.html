@@ -1,0 +1,39 @@
+{% extends "admin/base_site.html" %}
+{% load i18n %}
+
+{% block title %}SLA Compliance Report{% endblock %}
+
+{% block content %}
+<h1>SLA Compliance Report</h1>
+
+<h2>Overall</h2>
+<table>
+  <thead><tr><th>Total</th><th>Compliant</th><th>Breached</th><th>Compliance %</th></tr></thead>
+  <tbody>
+    <tr>
+      <td>{{ overall.total }}</td>
+      <td>{{ overall.compliant }}</td>
+      <td>{{ overall.breached }}</td>
+      <td>{{ overall.compliance_pct }}%</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2>By Type</h2>
+<table>
+  <thead><tr><th>Type</th><th>Total</th><th>Compliant</th><th>Breached</th><th>Compliance %</th></tr></thead>
+  <tbody>
+    {% for row in by_type %}
+    <tr>
+      <td>{{ row.label }}</td>
+      <td>{{ row.total }}</td>
+      <td>{{ row.compliant }}</td>
+      <td>{{ row.breached }}</td>
+      <td>{{ row.compliance_pct }}%</td>
+    </tr>
+    {% empty %}
+    <tr><td colspan="5">No SLA data yet.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

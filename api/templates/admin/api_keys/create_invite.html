@@ -1,0 +1,22 @@
+{% extends "admin/base_site.html" %}
+{% load i18n %}
+
+{% block content %}
+<p>A one-time invite token will be generated. Share it with the partner — it will <strong>not</strong> be shown again.</p>
+<p>The partner redeems it by calling:</p>
+<pre style="background:#1e1e1e;color:#d4d4d4;padding:12px;border-radius:4px;">POST /api/external/v1/invites/{token}/redeem
+Content-Type: application/json
+
+{
+  "first_name": "Jane",
+  "last_name": "Doe",
+  "org_name": "Acme Corp",
+  "email": "jane@acme.com"
+}</pre>
+<form method="post">
+    {% csrf_token %}
+    <div class="submit-row">
+        <input type="submit" value="Generate Invite Token" class="default" />
+    </div>
+</form>
+{% endblock %}

@@ -1,0 +1,84 @@
+{% extends "admin/base_site.html" %}
+{% load i18n admin_urls humanize %}
+
+{% block content %}
+
+
+<form method="get" style="margin-bottom: 20px; display: flex; align-items: center; gap: 10px;">
+    <label for="status">Status:</label>
+    <select name="status" id="status">
+        <option value="active" {% if status_filter == 'active' %}selected{% endif %}>Active</option>
+        <option value="cancelled" {% if status_filter == 'cancelled' %}selected{% endif %}>Cancelled</option>
+        <option value="expired" {% if status_filter == 'expired' %}selected{% endif %}>Expired</option>
+        <option value="all" {% if status_filter == 'all' %}selected{% endif %}>All</option>
+    </select>
+    <label for="billing">Billing:</label>
+    <select name="billing" id="billing">
+        <option value="all" {% if billing_filter == 'all' %}selected{% endif %}>All</option>
+        <option value="annual" {% if billing_filter == 'annual' %}selected{% endif %}>Annual</option>
+        <option value="monthly" {% if billing_filter == 'monthly' %}selected{% endif %}>Monthly</option>
+    </select>
+    <input type="submit" value="Filter">
+    <a href="{% url 'admin:policies_policy_payment_status_export' %}?status={{ status_filter }}&billing={{ billing_filter }}" class="button" style="padding: 5px 15px;">Export CSV</a>
+</form>
+
+<p>Total: {{ page_obj.paginator.count }} policies</p>
+
+<table>
+    <thead>
+        <tr>
+            <th>Policy Number</th>
+            <th>Coverage</th>
+            <th>Billing</th>
+            <th>Premium</th>
+            <th>Charges</th>
+            <th>Refunds</th>
+            <th>Net Collected</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for policy in policies %}
+        <tr>
+            <td><a href="{% url 'admin:policies_policy_change' policy.id %}">{{ policy.policy_number }}</a></td>
+            <td>{{ policy.coverage_type }}</td>
+            <td>{{ policy.billing_frequency }}</td>
+            <td>${{ policy.premium|floatformat:2|intcomma }}{% if policy.promo_code %} <small>({{ policy.promo_code }})</small>{% endif %}</td>
+            <td>${{ policy.total_charges|floatformat:2|intcomma }}</td>
+            <td>${{ policy.total_refunds|floatformat:2|intcomma }}</td>
+            <td>${{ policy.net_collected|floatformat:2|intcomma }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="7">No policies found</td></tr>
+        {% endfor %}
+        <tr style="font-weight: bold;">
+            <td colspan="3">Grand Total (all pages)</td>
+            <td>${{ total_premium|floatformat:2|intcomma }}</td>
+            <td>${{ total_charges|floatformat:2|intcomma }}</td>
+            <td>${{ total_refunds|floatformat:2|intcomma }}</td>
+            <td>${{ total_net|floatformat:2|intcomma }}</td>
+        </tr>
+    </tbody>
+</table>
+
+{% if page_obj.has_other_pages %}
+<div class="paginator" style="margin-top: 20px;">
+    {% if page_obj.has_previous %}
+    <a href="?page=1&status={{ status_filter }}&billing={{ billing_filter }}">« first</a>
+    <a href="?page={{ page_obj.previous_page_number }}&status={{ status_filter }}&billing={{ billing_filter }}">previous</a>
+    {% endif %}
+
+    <span style="margin: 0 10px;">
+        Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+    </span>
+
+    {% if page_obj.has_next %}
+    <a href="?page={{ page_obj.next_page_number }}&status={{ status_filter }}&billing={{ billing_filter }}">next</a>
+    <a href="?page={{ page_obj.paginator.num_pages }}&status={{ status_filter }}&billing={{ billing_filter }}">last »</a>
+    {% endif %}
+</div>
+{% endif %}
+
+<p style="margin-top: 20px;">
+    <a href="{% url 'admin:index' %}">&laquo; Back to Admin</a>
+</p>
+{% endblock %}

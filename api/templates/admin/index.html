@@ -1,0 +1,131 @@
+{% extends 'admin/base_site.html' %}
+
+{% load i18n unfold %}
+
+{% block breadcrumbs %}{% endblock %}
+
+{% block title %}
+  {% trans 'Dashboard' %} | {{ site_title|default:_('Django site admin') }}
+{% endblock %}
+
+{% block content %}
+
+  {# ═══════ KPI CARDS ═══════ #}
+  {% component "unfold/components/flex.html" with class="gap-4 mb-8 flex-wrap" %}
+
+    {% for item in kpi %}
+      {% component "unfold/components/card.html" with class="flex-1 min-w-[200px]" %}
+        {% component "unfold/components/text.html" %}
+          {{ item.title }}
+        {% endcomponent %}
+
+        {% component "unfold/components/title.html" %}
+          {{ item.metric }}
+        {% endcomponent %}
+
+        {% if item.footer %}
+          {% component "unfold/components/text.html" with class="text-xs text-gray-400 mt-1" %}
+            {{ item.footer }}
+          {% endcomponent %}
+        {% endif %}
+      {% endcomponent %}
+    {% endfor %}
+
+  {% endcomponent %}
+
+  {# ═══════ PIPELINE OVERVIEW ═══════ #}
+  {% component "unfold/components/card.html" with class="mb-8" %}
+    {% component "unfold/components/title.html" with class="mb-4" %}
+      Quote Pipeline
+    {% endcomponent %}
+
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm">
+        <thead>
+          <tr class="border-b border-gray-200">
+            <th class="text-left py-3 px-4 font-medium text-gray-500">Status</th>
+            <th class="text-right py-3 px-4 font-medium text-gray-500">Count</th>
+            <th class="text-left py-3 px-4 font-medium text-gray-500">Visual</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for row in pipeline %}
+            <tr class="border-b border-gray-100 hover:bg-gray-50">
+              <td class="py-3 px-4">
+                <span class="inline-flex items-center gap-2">
+                  <span class="w-2 h-2 rounded-full {{ row.color }}"></span>
+                  {{ row.label }}
+                </span>
+              </td>
+              <td class="py-3 px-4 text-right font-semibold">{{ row.count }}</td>
+              <td class="py-3 px-4">
+                <div class="w-full bg-gray-100 rounded-full h-2">
+                  <div class="{{ row.bar_color }} h-2 rounded-full" style="width: {{ row.percent }}%"></div>
+                </div>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% endcomponent %}
+
+  {# ═══════ TWO-COLUMN: RECENT ACTIVITY + QUICK ACTIONS ═══════ #}
+  {% component "unfold/components/flex.html" with class="gap-4" %}
+
+    {# Recent Activity #}
+    {% component "unfold/components/card.html" with class="lg:w-2/3" %}
+      {% component "unfold/components/title.html" with class="mb-4" %}
+        Recent Activity
+      {% endcomponent %}
+
+      {% if recent_activity %}
+        <div class="divide-y divide-gray-100">
+          {% for entry in recent_activity %}
+            <div class="py-3 flex items-center justify-between">
+              <div>
+                <span class="font-medium text-gray-900">{{ entry.user.email|default:"System" }}</span>
+                <span class="text-gray-500 text-sm ml-1">{{ entry.action }}</span>
+                <span class="text-gray-700 text-sm font-medium ml-1">{{ entry.model_name }}</span>
+                {% if entry.object_id %}
+                  <span class="text-gray-400 text-xs ml-1">#{{ entry.object_id }}</span>
+                {% endif %}
+              </div>
+              <span class="text-gray-400 text-xs whitespace-nowrap">{{ entry.timestamp|timesince }} ago</span>
+            </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <p class="text-gray-400 text-sm py-4">No recent activity</p>
+      {% endif %}
+    {% endcomponent %}
+
+    {# Quick Actions #}
+    {% component "unfold/components/card.html" with class="lg:w-1/3" %}
+      {% component "unfold/components/title.html" with class="mb-4" %}
+        Quick Actions
+      {% endcomponent %}
+
+      <div class="flex flex-col gap-2">
+        <a href="/admin/quotes/quote/" class="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors border border-gray-100">
+          <span class="material-symbols-outlined text-primary-600" style="font-size:20px">rate_review</span>
+          <span class="text-sm font-medium">Review Quotes</span>
+        </a>
+        <a href="/admin/policies/policy/" class="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors border border-gray-100">
+          <span class="material-symbols-outlined text-primary-600" style="font-size:20px">verified_user</span>
+          <span class="text-sm font-medium">Manage Policies</span>
+        </a>
+        <a href="/admin/claims/claim/" class="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors border border-gray-100">
+          <span class="material-symbols-outlined text-primary-600" style="font-size:20px">gavel</span>
+          <span class="text-sm font-medium">Review Claims</span>
+        </a>
+        <a href="/admin/forms/formdefinition/" class="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors border border-gray-100">
+          <span class="material-symbols-outlined text-primary-600" style="font-size:20px">dynamic_form</span>
+          <span class="text-sm font-medium">Form Builder</span>
+        </a>
+      </div>
+    {% endcomponent %}
+
+  {% endcomponent %}
+
+{% endblock %}

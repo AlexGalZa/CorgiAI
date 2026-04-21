@@ -1,0 +1,70 @@
+/* ═══════ Bottom save bar — solid background, no gradient ═══════ */
+.submit-row,
+div[class*="submit-row"],
+.sticky,
+.fixed.bottom-0,
+div[class*="sticky"],
+div[class*="bottom-0"][class*="bg-gradient"] {
+    background: #ffffff !important;
+    background-image: none !important;
+    border-top: 1px solid #e5e7eb !important;
+    box-shadow: none !important;
+}
+
+/* Kill any gradient overlays on the save bar */
+.fixed.bottom-0::before,
+.sticky::before,
+div[class*="bottom-0"]::before {
+    display: none !important;
+}
+
+/* ═══════ Fieldset Tabs — Proper tab design ═══════ */
+
+/* Tab bar container */
+div[x-data] > ul.bg-base-100 {
+    background: transparent !important;
+    border-bottom: 2px solid #e5e7eb;
+    border-radius: 0 !important;
+    padding: 0 0 0 4px !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    margin-bottom: 20px !important;
+    gap: 0 !important;
+}
+
+/* Individual tab items */
+div[x-data] > ul.bg-base-100 > li > a {
+    display: inline-block;
+    padding: 10px 18px !important;
+    font-size: 13px !important;
+    font-weight: 500 !important;
+    color: #6b7280 !important;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -2px;
+    transition: all 0.15s ease;
+}
+
+/* Tab hover */
+div[x-data] > ul.bg-base-100 > li > a:hover {
+    color: #374151 !important;
+}
+
+/* Active tab — unfold adds text-font-important-light class */
+div[x-data] > ul.bg-base-100 > li > a.text-font-important-light,
+div[x-data] > ul.bg-base-100 > li > a.dark\:text-font-important-dark {
+    color: #ff5c00 !important;
+    border-bottom-color: #ff5c00 !important;
+    font-weight: 600 !important;
+}
+
+/* Sidebar nav badges: brand orange, not Unfold's default red.
+   The sidebar counter badges (e.g. "5 open claims", "2 pending quotes") use
+   Unfold's default danger palette. "Needs attention" is not "error". Remap
+   them to the Corgi primary color to stay in brand. */
+aside a span.bg-red-100.text-red-700,
+aside a span.bg-red-100.text-red-700.dark\:bg-red-500\/20,
+nav a span.bg-red-100.text-red-700 {
+    background-color: #fff4ec !important;
+    color: #c2410c !important;
+    border: 1px solid #fed7aa !important;
+}

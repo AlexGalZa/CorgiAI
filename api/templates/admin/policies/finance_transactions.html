@@ -1,0 +1,103 @@
+{% extends "admin/base_site.html" %}
+{% load i18n humanize %}
+
+{% block title %}Finance — Transactions by Product{% endblock %}
+
+{% block content %}
+<h1>Finance — Transactions by Product</h1>
+<p>One row per product per PolicyTransaction. Filter by status, collected
+date range, or brokered flag, and export to CSV.</p>
+
+<form method="get" style="margin-bottom: 1.5rem;">
+  <label for="status">Status:</label>
+  <select id="status" name="status" style="margin-right:1rem;">
+    <option value="">Any</option>
+    {% for s in status_choices %}
+      <option value="{{ s }}" {% if s == filters.status %}selected{% endif %}>{{ s }}</option>
+    {% endfor %}
+  </select>
+
+  <label for="collected_from">Collected from:</label>
+  <input type="date" id="collected_from" name="collected_from"
+         value="{{ filters.collected_from }}" style="margin-right:1rem;">
+
+  <label for="collected_to">Collected to:</label>
+  <input type="date" id="collected_to" name="collected_to"
+         value="{{ filters.collected_to }}" style="margin-right:1rem;">
+
+  <label for="is_brokered">Brokered:</label>
+  <select id="is_brokered" name="is_brokered" style="margin-right:1rem;">
+    {% for val, label in brokered_choices %}
+      <option value="{{ val }}" {% if val == filters.is_brokered %}selected{% endif %}>{{ label }}</option>
+    {% endfor %}
+  </select>
+
+  <button type="submit">Filter</button>
+  <a href="?status={{ filters.status }}&collected_from={{ filters.collected_from }}&collected_to={{ filters.collected_to }}&is_brokered={{ filters.is_brokered }}&export=csv"
+     style="margin-left:1rem;">Export CSV</a>
+</form>
+
+<h2>Summary</h2>
+<table>
+  <thead>
+    <tr>
+      <th>Rows</th>
+      <th>Total GWP</th>
+      <th>Total Admin Fee</th>
+      <th>Total Commission</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>{{ totals.count|intcomma }}</td>
+      <td>${{ totals.gwp|floatformat:2|intcomma }}</td>
+      <td>${{ totals.admin_fee|floatformat:2|intcomma }}</td>
+      <td>${{ totals.commission|floatformat:2|intcomma }}</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2>Transactions</h2>
+<table>
+  <thead>
+    <tr>
+      <th>Policy #</th>
+      <th>Coverage</th>
+      <th>Carrier</th>
+      <th>Brokered</th>
+      <th>Txn Type</th>
+      <th>Effective</th>
+      <th>Accounting</th>
+      <th>Collected</th>
+      <th>GWP</th>
+      <th>Admin Fee</th>
+      <th>Commission</th>
+      <th>Payout ID</th>
+      <th>Status</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for row in rows %}
+    <tr>
+      <td>{{ row.policy_number }}</td>
+      <td>{{ row.coverage }}</td>
+      <td>{{ row.carrier }}</td>
+      <td>{% if row.is_brokered %}Yes{% else %}No{% endif %}</td>
+      <td>{{ row.transaction_type }}</td>
+      <td>{{ row.effective_date|default_if_none:"—" }}</td>
+      <td>{{ row.accounting_date|default_if_none:"—" }}</td>
+      <td>{{ row.collected_date|default_if_none:"—" }}</td>
+      <td>{% if row.gwp is not None %}${{ row.gwp|floatformat:2|intcomma }}{% else %}—{% endif %}</td>
+      <td>{% if row.admin_fee is not None %}${{ row.admin_fee|floatformat:2|intcomma }}{% else %}—{% endif %}</td>
+      <td>{% if row.commission is not None %}${{ row.commission|floatformat:2|intcomma }}{% else %}—{% endif %}</td>
+      <td>{{ row.payout_id|default:"—" }}</td>
+      <td>{{ row.status }}</td>
+    </tr>
+    {% empty %}
+    <tr>
+      <td colspan="13">No transactions match the current filters.</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

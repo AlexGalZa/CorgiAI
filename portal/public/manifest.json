@@ -1,0 +1,13 @@
+{
+  "name": "Corgi Insurance",
+  "short_name": "Corgi",
+  "description": "Startup Insurance in Minutes",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#ff5c00",
+  "icons": [
+    { "src": "/corgi-icon.svg", "sizes": "any", "type": "image/svg+xml" },
+    { "src": "/favicon.ico", "sizes": "48x48", "type": "image/x-icon" }
+  ]
+}

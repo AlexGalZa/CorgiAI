@@ -1,0 +1,49 @@
+# Root .dockerignore for the all-in-one build
+.git
+.github
+.gitignore
+.claude
+.omc
+.understand-anything
+.vscode
+.idea
+README.md
+docs
+e2e
+infra
+deploy/**/*.md
+netlify.toml
+render.yaml
+railway.toml
+vercel.json
+
+# Node
+**/node_modules
+**/.next
+**/dist
+**/.turbo
+
+# Python
+**/__pycache__
+**/*.pyc
+**/*.pyo
+**/.venv
+**/venv
+**/env
+api/db.sqlite3
+api/staticfiles
+api/media
+**/.mypy_cache
+**/.pytest_cache
+
+# Env / secrets
+**/.env
+**/.env.*
+!**/.env.example
+
+# OS junk
+**/.DS_Store
+**/Thumbs.db
+
+# Logs
+**/*.log

@@ -1,0 +1,30 @@
+{% extends "admin/change_list.html" %}
+{% load i18n unfold %}
+
+{% block content %}
+{% component "unfold/components/flex.html" with class="gap-4 mb-8 flex-nowrap" %}
+    {% component "unfold/components/card.html" with class="flex-1 min-w-0" %}
+        {% component "unfold/components/text.html" with class="text-gray-500 font-medium" %}Active Policies{% endcomponent %}
+        {% component "unfold/components/title.html" %}{{ kpi.active|default:"0" }}{% endcomponent %}
+    {% endcomponent %}
+
+    {% component "unfold/components/card.html" with class="flex-1 min-w-0" %}
+        {% component "unfold/components/text.html" with class="text-gray-500 font-medium" %}Total Premium{% endcomponent %}
+        {% component "unfold/components/title.html" %}{{ kpi.total_premium|default:"$0" }}{% endcomponent %}
+    {% endcomponent %}
+
+    {% component "unfold/components/card.html" with class="flex-1 min-w-0" %}
+        {% component "unfold/components/text.html" with class="text-gray-500 font-medium" %}Monthly Billed{% endcomponent %}
+        {% component "unfold/components/title.html" %}{{ kpi.monthly_billed|default:"0" }}{% endcomponent %}
+    {% endcomponent %}
+
+    {% component "unfold/components/card.html" with class="flex-1 min-w-0" %}
+        {% component "unfold/components/text.html" with class="text-gray-500 font-medium" %}Expiring Soon (30d){% endcomponent %}
+        {% component "unfold/components/title.html" %}{{ kpi.expiring_soon|default:"0" }}{% endcomponent %}
+    {% endcomponent %}
+{% endcomponent %}
+
+{{ block.super }}
+{% endblock %}
+
+

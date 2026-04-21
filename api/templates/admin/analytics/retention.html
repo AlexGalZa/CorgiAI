@@ -1,0 +1,101 @@
+{% extends "admin/base_site.html" %}
+{% load i18n humanize %}
+
+{% block title %}Customer Retention &amp; Churn{% endblock %}
+
+{% block content %}
+<h1>Customer Retention &amp; Churn Report</h1>
+<p>Renewal rates, churn reasons, revenue retention, and cohort analysis.</p>
+
+<h2>Summary</h2>
+<table>
+  <thead>
+    <tr><th>Metric</th><th>Value</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Total Eligible for Renewal (12 mo)</td><td>{{ data.total_eligible|intcomma }}</td></tr>
+    <tr><td>Total Renewed</td><td>{{ data.total_renewed|intcomma }}</td></tr>
+    <tr>
+      <td>Overall Renewal Rate</td>
+      <td>{% if data.overall_renewal_rate %}{{ data.overall_renewal_rate }}%{% else %}—{% endif %}</td>
+    </tr>
+    <tr>
+      <td>Revenue Retention Rate</td>
+      <td>{% if data.revenue_retention_rate %}{{ data.revenue_retention_rate }}%{% else %}—{% endif %}</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2>Renewal Rates by Month</h2>
+<table>
+  <thead>
+    <tr>
+      <th>Month</th>
+      <th>Eligible</th>
+      <th>Renewed</th>
+      <th>Renewal Rate</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for row in data.renewal_rates %}
+    <tr>
+      <td>{{ row.month }}</td>
+      <td>{{ row.eligible_renewals|intcomma }}</td>
+      <td>{{ row.renewed|intcomma }}</td>
+      <td>{% if row.renewal_rate %}{{ row.renewal_rate }}%{% else %}—{% endif %}</td>
+    </tr>
+    {% empty %}
+    <tr><td colspan="4">No renewal data available.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<h2>Churn Reasons</h2>
+<table>
+  <thead>
+    <tr>
+      <th>Reason</th>
+      <th>Count</th>
+      <th>% of Churned</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for reason in data.churn_reasons %}
+    <tr>
+      <td>{{ reason.reason|title }}</td>
+      <td>{{ reason.count|intcomma }}</td>
+      <td>{% if reason.percentage %}{{ reason.percentage }}%{% else %}—{% endif %}</td>
+    </tr>
+    {% empty %}
+    <tr><td colspan="3">No cancellation data available.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<h2>Cohort Analysis (by Signup Month)</h2>
+<p>Only cohorts 12+ months old are shown.</p>
+<table>
+  <thead>
+    <tr>
+      <th>Cohort Month</th>
+      <th>Total Customers</th>
+      <th>Retained</th>
+      <th>Churned</th>
+      <th>Retention Rate</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for cohort in data.cohort_analysis %}
+    <tr>
+      <td>{{ cohort.cohort_month }}</td>
+      <td>{{ cohort.total|intcomma }}</td>
+      <td>{{ cohort.retained|intcomma }}</td>
+      <td>{{ cohort.churned|intcomma }}</td>
+      <td>{% if cohort.retention_rate %}{{ cohort.retention_rate }}%{% else %}—{% endif %}</td>
+    </tr>
+    {% empty %}
+    <tr><td colspan="5">No cohort data available yet.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

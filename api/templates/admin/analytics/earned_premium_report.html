@@ -1,0 +1,67 @@
+{% extends "admin/base_site.html" %}
+{% load i18n humanize %}
+
+{% block title %}Earned Premium Report{% endblock %}
+
+{% block content %}
+<h1>Earned Premium Report</h1>
+<p>GAAP revenue recognition — earned vs unearned premium breakdown.</p>
+
+<form method="get" style="margin-bottom: 1.5rem;">
+  <label for="month">Month (YYYY-MM):</label>
+  <input type="text" id="month" name="month" value="{{ month }}" placeholder="e.g. 2026-03" style="margin-right:1rem;">
+
+  <label for="carrier">Carrier:</label>
+  <input type="text" id="carrier" name="carrier" value="{{ carrier }}" placeholder="Partial name..." style="margin-right:1rem;">
+
+  <label for="coverage_type">Coverage Type:</label>
+  <input type="text" id="coverage_type" name="coverage_type" value="{{ coverage_type }}" placeholder="e.g. tech-eo" style="margin-right:1rem;">
+
+  <button type="submit">Filter</button>
+</form>
+
+<h2>Summary</h2>
+<table>
+  <thead>
+    <tr>
+      <th>Total Earned</th>
+      <th>Total Unearned</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>${{ report.total_earned|floatformat:2 }}</td>
+      <td>${{ report.total_unearned|floatformat:2 }}</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2>Breakdown</h2>
+<table>
+  <thead>
+    <tr>
+      <th>Month</th>
+      <th>Coverage Type</th>
+      <th>Earned ($)</th>
+      <th>Unearned ($)</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for row in report.rows %}
+    <tr>
+      <td>{{ row.month }}</td>
+      <td>{{ row.coverage_type }}</td>
+      <td>${{ row.earned_amount|floatformat:2 }}</td>
+      <td>${{ row.unearned_amount|floatformat:2 }}</td>
+    </tr>
+    {% empty %}
+    <tr>
+      <td colspan="4">
+        No earned premium records found.
+        Run <code>python manage.py calculate_earned_premium</code> to generate data.
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

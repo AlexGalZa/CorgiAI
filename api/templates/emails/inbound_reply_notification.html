@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>New customer reply</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: #F9F9F9;
+            color: #1D1D1D;
+            line-height: 1.5;
+        }
+        .email-wrapper {
+            width: 100%;
+            background-color: #F9F9F9;
+            padding: 32px 16px;
+        }
+        .email-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #FFFFFF;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+        .email-body {
+            padding: 32px;
+        }
+        h1 {
+            font-size: 22px;
+            font-weight: 600;
+            color: #1D1D1D;
+            margin: 0 0 8px;
+        }
+        .subtitle {
+            font-size: 14px;
+            color: #4E4E4E;
+            margin: 0 0 20px;
+        }
+        .thread-card {
+            background-color: #F9F9F9;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 20px;
+        }
+        .message {
+            padding: 10px 0;
+            border-bottom: 1px solid #E8E8E8;
+        }
+        .message:last-child {
+            border-bottom: none;
+        }
+        .message-from {
+            font-size: 13px;
+            font-weight: 600;
+            color: #1D1D1D;
+            margin: 0 0 2px;
+        }
+        .message-time {
+            font-size: 11px;
+            color: #6E6E6E;
+            margin: 0 0 6px;
+        }
+        .message-snippet {
+            font-size: 14px;
+            color: #4E4E4E;
+            margin: 0;
+            white-space: pre-wrap;
+        }
+        .cta {
+            display: inline-block;
+            background-color: #FF5C00;
+            color: #FFFFFF;
+            padding: 12px 20px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        .meta {
+            font-size: 12px;
+            color: #6E6E6E;
+            margin-top: 20px;
+        }
+        .ttl-note {
+            font-size: 11px;
+            color: #6E6E6E;
+            margin-top: 12px;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <div class="email-wrapper">
+        <div class="email-container">
+            <div class="email-body">
+                <h1>New customer reply</h1>
+                <p class="subtitle">
+                    {% if salesperson_first_name %}Hi {{ salesperson_first_name }} — a{% else %}A{% endif %}
+                    customer just replied on thread
+                    <strong>{{ thread_id }}</strong>.
+                </p>
+
+                <div class="thread-card">
+                    {% for message in last_messages %}
+                    <div class="message">
+                        <p class="message-from">{{ message.from }}</p>
+                        <p class="message-time">{{ message.received_at }}</p>
+                        <p class="message-snippet">{{ message.snippet }}</p>
+                    </div>
+                    {% empty %}
+                    <p class="message-snippet">No messages on file.</p>
+                    {% endfor %}
+                </div>
+
+                {% if thread_url %}
+                <a href="{{ thread_url }}" class="cta">Open thread</a>
+                {% endif %}
+
+                {% if policy_number %}
+                <p class="meta">Related policy: <strong>{{ policy_number }}</strong></p>
+                {% endif %}
+
+                <p class="ttl-note">
+                    This context auto-expires 7 hours after creation.
+                </p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

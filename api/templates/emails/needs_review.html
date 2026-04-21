@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+<body style="font-family: Arial, sans-serif; line-height: 1.6; max-width: 600px; margin: 0 auto; padding: 20px;">
+    <h2>Quote Needs Review</h2>
+    <p><strong>Quote Number:</strong> {{ quote_number }}</p>
+    <p><strong>Company:</strong> {{ company_name }}</p>
+    <p><strong>Submitted:</strong> {{ submitted_at }}</p>
+    <h3>Review Reasons:</h3>
+    <ul>
+    {% for reason in review_reasons %}
+        <li><strong>{{ reason.coverage }}:</strong> {{ reason.reason }}</li>
+    {% endfor %}
+    </ul>
+</body>
+</html>

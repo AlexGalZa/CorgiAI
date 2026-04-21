@@ -1,0 +1,158 @@
+# =============================================================================
+# Corgi — Blue-Green Deployment Stack
+# =============================================================================
+# Two identical API service instances (blue/green) behind an nginx reverse
+# proxy. Only one is active ("live") at any given time. Traffic is switched
+# by updating the nginx upstream and reloading nginx — zero downtime.
+#
+# Usage (managed by deploy/deploy.sh):
+#   # Start both slots and nginx
+#   docker compose -f deploy/docker-compose.blue-green.yml up -d
+#
+#   # Promote blue
+#   ACTIVE_SLOT=blue docker compose -f deploy/docker-compose.blue-green.yml \
+#     exec nginx nginx -s reload
+#
+# The `deploy.sh` script handles full lifecycle:
+#   ./deploy/deploy.sh [blue|green] [image:tag]
+# =============================================================================
+
+name: corgi-blue-green
+
+services:
+  # ── Infrastructure (shared) ───────────────────────────────────────────────
+  db:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    env_file: ../.env
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-corgi}
+      POSTGRES_USER: ${POSTGRES_USER:-corgi_admin}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-corgi_admin} -d ${POSTGRES_DB:-corgi}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - corgi-net
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    volumes:
+      - redisdata:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - corgi-net
+
+  # ── Blue slot ─────────────────────────────────────────────────────────────
+  api-blue:
+    image: ${CORGI_IMAGE:-corgi-api:latest}
+    restart: unless-stopped
+    env_file: ../.env
+    environment:
+      DJANGO_DEBUG: "false"
+      SLOT: blue
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - static-files:/app/staticfiles
+    networks:
+      - corgi-net
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:8000/health/ || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    labels:
+      - "corgi.slot=blue"
+      - "corgi.role=api"
+
+  # ── Green slot ────────────────────────────────────────────────────────────
+  api-green:
+    image: ${CORGI_IMAGE:-corgi-api:latest}
+    restart: unless-stopped
+    env_file: ../.env
+    environment:
+      DJANGO_DEBUG: "false"
+      SLOT: green
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - static-files:/app/staticfiles
+    networks:
+      - corgi-net
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:8000/health/ || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    labels:
+      - "corgi.slot=green"
+      - "corgi.role=api"
+
+  # ── Worker (blue only — workers don't need zero-downtime switching) ───────
+  worker:
+    image: ${CORGI_IMAGE:-corgi-api:latest}
+    restart: unless-stopped
+    env_file: ../.env
+    command: python manage.py qcluster
+    environment:
+      DJANGO_DEBUG: "false"
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - corgi-net
+    labels:
+      - "corgi.role=worker"
+
+  # ── Nginx reverse proxy / traffic switch ──────────────────────────────────
+  nginx:
+    image: nginx:1.27-alpine
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx-active:/etc/nginx/conf.d/active.conf:ro
+      - static-files:/static:ro
+      - ${SSL_CERT_PATH:-/dev/null}:/etc/nginx/ssl/cert.pem:ro
+      - ${SSL_KEY_PATH:-/dev/null}:/etc/nginx/ssl/key.pem:ro
+    depends_on:
+      - api-blue
+      - api-green
+    networks:
+      - corgi-net
+    healthcheck:
+      test: ["CMD-SHELL", "nginx -t && curl -sf http://localhost/health/ || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+
+volumes:
+  pgdata:
+  redisdata:
+  static-files:
+
+networks:
+  corgi-net:
+    driver: bridge

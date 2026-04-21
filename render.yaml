@@ -1,0 +1,64 @@
+databases:
+  - name: corgi-db
+    plan: free
+    databaseName: corgi
+    user: corgi_admin
+
+services:
+  - type: web
+    name: corgi-api
+    plan: free
+    runtime: docker
+    dockerfilePath: api/Dockerfile
+    dockerContext: api
+    envVars:
+      - key: DATABASE_HOST
+        fromDatabase:
+          name: corgi-db
+          property: host
+      - key: DATABASE_PORT
+        fromDatabase:
+          name: corgi-db
+          property: port
+      - key: DATABASE_NAME
+        fromDatabase:
+          name: corgi-db
+          property: database
+      - key: DATABASE_USER
+        fromDatabase:
+          name: corgi-db
+          property: user
+      - key: DATABASE_PASSWORD
+        fromDatabase:
+          name: corgi-db
+          property: password
+      - key: DJANGO_SECRET_KEY
+        generateValue: true
+      - key: JWT_SECRET_KEY
+        generateValue: true
+      - key: DJANGO_DEBUG
+        value: "False"
+      - key: ALLOWED_HOSTS
+        value: "*"
+      - key: CORS_ALLOWED_ORIGINS
+        value: "https://corgi-portal.onrender.com,https://corgi-admin.onrender.com"
+
+  - type: web
+    name: corgi-portal
+    plan: free
+    runtime: static
+    buildCommand: corepack enable && cd portal && pnpm install --frozen-lockfile && pnpm run build
+    staticPublishPath: portal/out
+    envVars:
+      - key: NEXT_PUBLIC_API_URL
+        value: "https://corgi-api.onrender.com"
+
+  - type: web
+    name: corgi-admin
+    plan: free
+    runtime: static
+    buildCommand: corepack enable && cd admin && pnpm install --frozen-lockfile && pnpm run build
+    staticPublishPath: admin/dist
+    envVars:
+      - key: VITE_API_URL
+        value: "https://corgi-api.onrender.com"

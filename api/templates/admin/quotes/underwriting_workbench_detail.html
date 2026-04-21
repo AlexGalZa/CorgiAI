@@ -1,0 +1,243 @@
+{% extends "admin/base_site.html" %}
+{% load humanize %}
+
+{% block title %}Underwriting Review — {{ quote.quote_number }}{% endblock %}
+
+{% block content %}
+<div style="max-width: 1100px;">
+
+  {# Breadcrumb #}
+  <div style="margin-bottom: 16px; font-size: 13px; color: #9ca3af;">
+    <a href="{% url 'admin:underwriting_workbench_list' %}" style="color: #2563eb; text-decoration: none;">← Underwriting Workbench</a>
+    &nbsp;/&nbsp; {{ quote.quote_number }}
+  </div>
+
+  {# Messages #}
+  {% if messages %}
+  {% for message in messages %}
+  <div style="background: {% if message.tags == 'success' %}#f0fdf4{% else %}#fef2f2{% endif %}; border: 1px solid {% if message.tags == 'success' %}#86efac{% else %}#fca5a5{% endif %}; padding: 12px 16px; border-radius: 8px; margin-bottom: 16px; font-size: 13px;">
+    {{ message }}
+  </div>
+  {% endfor %}
+  {% endif %}
+
+  <div style="display: grid; grid-template-columns: 1fr 380px; gap: 24px; align-items: start;">
+
+    {# Left: Company & Coverage Info #}
+    <div>
+
+      {# Company Card #}
+      <div style="background: white; border: 1px solid #e5e7eb; border-radius: 8px; padding: 20px; margin-bottom: 20px;">
+        <h2 style="font-size: 15px; font-weight: 700; color: #111827; margin: 0 0 16px;">🏢 Company Information</h2>
+
+        {% if quote.company %}
+        {% with c=quote.company %}
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; font-size: 13px;">
+          <div>
+            <div style="color: #9ca3af; font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 2px;">Legal Name</div>
+            <div style="font-weight: 600; color: #111827;">{{ c.entity_legal_name|default:"—" }}</div>
+          </div>
+          <div>
+            <div style="color: #9ca3af; font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 2px;">Type</div>
+            <div>{{ c.type|default:"—" }} / {{ c.profit_type|default:"—" }}</div>
+          </div>
+          <div>
+            <div style="color: #9ca3af; font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 2px;">Revenue (LTM)</div>
+            <div style="font-weight: 600;">{% if c.last_12_months_revenue %}${{ c.last_12_months_revenue|floatformat:0|intcomma }}{% else %}—{% endif %}</div>
+          </div>
+          <div>
+            <div style="color: #9ca3af; font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 2px;">Projected Revenue</div>
+            <div>{% if c.projected_next_12_months_revenue %}${{ c.projected_next_12_months_revenue|floatformat:0|intcomma }}{% else %}—{% endif %}</div>
+          </div>
+          <div>
+            <div style="color: #9ca3af; font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 2px;">Employees (FT / PT)</div>
+            <div>{{ c.full_time_employees|default:"—" }} / {{ c.part_time_employees|default:"—" }}</div>
+          </div>
+          <div>
+            <div style="color: #9ca3af; font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 2px;">Tech Company</div>
+            <div>{% if c.is_technology_company %}✅ Yes{% else %}❌ No{% endif %}</div>
+          </div>
+          <div>
+            <div style="color: #9ca3af; font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 2px;">EIN</div>
+            <div>{{ c.federal_ein|default:"—" }}</div>
+          </div>
+          <div>
+            <div style="color: #9ca3af; font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 2px;">Founded</div>
+            <div>{{ c.business_start_date|default:"—" }}</div>
+          </div>
+          {% if c.business_address %}
+          <div style="grid-column: 1 / -1;">
+            <div style="color: #9ca3af; font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 2px;">Address</div>
+            <div>{{ c.business_address.street_address }}, {{ c.business_address.city }}, {{ c.business_address.state }} {{ c.business_address.zip }}</div>
+          </div>
+          {% endif %}
+          {% if c.business_description %}
+          <div style="grid-column: 1 / -1;">
+            <div style="color: #9ca3af; font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 2px;">Business Description</div>
+            <div style="color: #374151; line-height: 1.5;">{{ c.business_description }}</div>
+          </div>
+          {% endif %}
+        </div>
+        {% endwith %}
+        {% else %}
+        <p style="color: #9ca3af;">No company information available.</p>
+        {% endif %}
+
+        {# Research Links #}
+        <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid #f3f4f6;">
+          <div style="font-size: 12px; color: #9ca3af; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.05em;">Company Research</div>
+          <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+            {% for link in research_links %}
+            <a href="{{ link.url }}" target="_blank" rel="noopener noreferrer"
+               style="background: #f9fafb; border: 1px solid #e5e7eb; padding: 4px 10px; border-radius: 5px; font-size: 12px; text-decoration: none; color: #374151;">
+              {{ link.label }}
+            </a>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+
+      {# Coverage Requested #}
+      <div style="background: white; border: 1px solid #e5e7eb; border-radius: 8px; padding: 20px; margin-bottom: 20px;">
+        <h2 style="font-size: 15px; font-weight: 700; color: #111827; margin: 0 0 16px;">📋 Coverage Requested</h2>
+        {% if coverages_data %}
+        <table style="width: 100%; border-collapse: collapse; font-size: 13px;">
+          <thead>
+            <tr style="border-bottom: 2px solid #e5e7eb; color: #6b7280; font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em;">
+              <th style="padding: 6px 8px; text-align: left;">Coverage</th>
+              <th style="padding: 6px 8px; text-align: right;">Per Occ Limit</th>
+              <th style="padding: 6px 8px; text-align: right;">Aggregate</th>
+              <th style="padding: 6px 8px; text-align: right;">Retention</th>
+              <th style="padding: 6px 8px; text-align: right;">Premium</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for cov in coverages_data %}
+            <tr style="border-bottom: 1px solid #f3f4f6;">
+              <td style="padding: 8px 8px;">
+                <span style="font-weight: 500;">{{ cov.display_name }}</span>
+                {% if cov.needs_review %}
+                <span style="background: #fef9c3; color: #92400e; padding: 1px 5px; border-radius: 3px; font-size: 10px; margin-left: 4px;">needs review</span>
+                {% endif %}
+              </td>
+              <td style="padding: 8px 8px; text-align: right; color: #6b7280;">
+                {% if cov.per_occurrence_limit %}${{ cov.per_occurrence_limit|intcomma }}{% else %}—{% endif %}
+              </td>
+              <td style="padding: 8px 8px; text-align: right; color: #6b7280;">
+                {% if cov.aggregate_limit %}${{ cov.aggregate_limit|intcomma }}{% else %}—{% endif %}
+              </td>
+              <td style="padding: 8px 8px; text-align: right; color: #6b7280;">
+                {% if cov.retention %}${{ cov.retention|intcomma }}{% else %}—{% endif %}
+              </td>
+              <td style="padding: 8px 8px; text-align: right; font-weight: 500;">
+                {% if cov.premium %}${{ cov.premium|floatformat:0|intcomma }}{% else %}—{% endif %}
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        {% else %}
+        <p style="color: #9ca3af;">No coverages found.</p>
+        {% endif %}
+
+        {% if quote.quote_amount %}
+        <div style="margin-top: 12px; text-align: right; font-size: 14px; font-weight: 700; color: #111827;">
+          Total: ${{ quote.quote_amount|floatformat:0|intcomma }}
+        </div>
+        {% endif %}
+      </div>
+
+      {# Claims History #}
+      {% if quote.claims_history %}
+      <div style="background: white; border: 1px solid #e5e7eb; border-radius: 8px; padding: 20px; margin-bottom: 20px;">
+        <h2 style="font-size: 15px; font-weight: 700; color: #111827; margin: 0 0 16px;">⚠️ Claims History</h2>
+        {% with lh=quote.claims_history.loss_history %}
+        {% if lh.has_past_claims %}
+        <div style="background: #fef2f2; border: 1px solid #fca5a5; padding: 12px; border-radius: 6px; font-size: 13px; color: #991b1b;">
+          ⚠️ Applicant has prior claims history.
+          {% if lh.incident_details %}<br><strong>Details:</strong> {{ lh.incident_details }}{% endif %}
+        </div>
+        {% else %}
+        <div style="color: #15803d; font-size: 13px;">✅ No prior claims reported.</div>
+        {% endif %}
+        {% endwith %}
+      </div>
+      {% endif %}
+
+    </div>
+
+    {# Right: Actions Panel #}
+    <div>
+      <div style="background: white; border: 1px solid #e5e7eb; border-radius: 8px; padding: 20px; position: sticky; top: 20px;">
+        <h2 style="font-size: 15px; font-weight: 700; color: #111827; margin: 0 0 16px;">📝 Underwriter Actions</h2>
+
+        {# Quote metadata #}
+        <div style="font-size: 12px; color: #9ca3af; margin-bottom: 16px; line-height: 1.8;">
+          <div><strong style="color: #374151;">Quote:</strong> {{ quote.quote_number }}</div>
+          <div><strong style="color: #374151;">Status:</strong>
+            <span style="background: #fef9c3; color: #92400e; padding: 1px 6px; border-radius: 3px; font-size: 11px; font-weight: 600;">{{ quote.get_status_display }}</span>
+          </div>
+          <div><strong style="color: #374151;">Submitted:</strong> {{ quote.created_at|date:"M d, Y H:i" }}</div>
+          <div><strong style="color: #374151;">Billing:</strong> {{ quote.billing_frequency|default:"annual" }}</div>
+          {% if quote.user %}
+          <div><strong style="color: #374151;">Applicant:</strong>
+            <a href="mailto:{{ quote.user.email }}" style="color: #2563eb;">{{ quote.user.email }}</a>
+          </div>
+          {% endif %}
+          {% if quote.referral_partner %}
+          <div><strong style="color: #374151;">Partner:</strong> {{ quote.referral_partner }}</div>
+          {% endif %}
+        </div>
+
+        <form method="post" id="review-form">
+          {% csrf_token %}
+          <input type="hidden" name="action" id="review-action" value="">
+
+          {# Notes #}
+          <div style="margin-bottom: 14px;">
+            <label style="font-size: 13px; font-weight: 600; color: #374151; display: block; margin-bottom: 4px;">Risk Assessment Notes</label>
+            {{ form.notes }}
+            <div style="font-size: 11px; color: #9ca3af; margin-top: 3px;">Internal notes. Not shown to the applicant.</div>
+          </div>
+
+          {# Effective Date (for approval) #}
+          <div style="margin-bottom: 14px;">
+            <label style="font-size: 13px; font-weight: 600; color: #374151; display: block; margin-bottom: 4px;">Effective Date (approval)</label>
+            {{ form.effective_date }}
+            <div style="font-size: 11px; color: #9ca3af; margin-top: 3px;">Leave blank to use today.</div>
+          </div>
+
+          {# Decline Reason (collapse by default) #}
+          <div style="margin-bottom: 20px;">
+            <label style="font-size: 13px; font-weight: 600; color: #374151; display: block; margin-bottom: 4px;">Decline Reason</label>
+            {{ form.decline_reason }}
+            <div style="font-size: 11px; color: #9ca3af; margin-top: 3px;">Required when declining. Emailed to the applicant.</div>
+          </div>
+
+          {# Action Buttons #}
+          <div style="display: flex; flex-direction: column; gap: 10px;">
+            <button type="submit" onclick="document.getElementById('review-action').value='approve'"
+              style="background: #16a34a; color: white; border: none; padding: 10px 16px; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; width: 100%;">
+              ✅ Approve & Generate Checkout Link
+            </button>
+            <button type="submit" onclick="document.getElementById('review-action').value='decline'"
+              style="background: #dc2626; color: white; border: none; padding: 10px 16px; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; width: 100%;"
+              onclick="return confirm('Are you sure you want to decline this quote?')">
+              ❌ Decline & Notify Applicant
+            </button>
+          </div>
+        </form>
+
+        {# Link to standard admin view #}
+        <div style="margin-top: 16px; padding-top: 12px; border-top: 1px solid #f3f4f6; text-align: center;">
+          <a href="{% url 'admin:quotes_quote_change' quote.pk %}" target="_blank"
+             style="font-size: 12px; color: #9ca3af; text-decoration: none;">
+            ↗ Open in standard admin
+          </a>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+{% endblock %}

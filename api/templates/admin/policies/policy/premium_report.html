@@ -1,0 +1,96 @@
+{% extends "admin/base_site.html" %}
+{% load i18n admin_urls humanize %}
+
+{% block content %}
+
+<form method="get" style="margin-bottom: 20px; display: flex; align-items: center; gap: 15px;">
+    <div>
+        <label for="status">Status:</label>
+        <select name="status" id="status" onchange="this.form.submit()">
+            <option value="active" {% if status_filter == 'active' %}selected{% endif %}>Active</option>
+            <option value="cancelled" {% if status_filter == 'cancelled' %}selected{% endif %}>Cancelled</option>
+            <option value="expired" {% if status_filter == 'expired' %}selected{% endif %}>Expired</option>
+            <option value="all" {% if status_filter == 'all' %}selected{% endif %}>All</option>
+        </select>
+    </div>
+    <a href="{% url 'admin:policies_policy_premium_report_export' %}?status={{ status_filter }}" class="button" style="padding: 5px 15px;">Export CSV</a>
+</form>
+
+<h2>RRG (Direct Written)</h2>
+<table>
+    <thead>
+        <tr>
+            <th>Coverage Type</th>
+            <th>Count</th>
+            <th>Premium</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for row in rrg_premiums %}
+        <tr>
+            <td>{{ row.coverage_type|default:"Unknown" }}</td>
+            <td>{{ row.policy_count }}</td>
+            <td>${{ row.total_premium|floatformat:2|intcomma }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="3">No data</td></tr>
+        {% endfor %}
+        <tr style="font-weight: bold;">
+            <td>Total</td>
+            <td>{{ rrg_total.total_policies|default:0 }}</td>
+            <td>${{ rrg_total.total_premium|floatformat:2|intcomma }}</td>
+        </tr>
+    </tbody>
+</table>
+
+<h2>Brokered</h2>
+<table>
+    <thead>
+        <tr>
+            <th>Coverage Type</th>
+            <th>Carrier</th>
+            <th>Count</th>
+            <th>Premium</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for row in brokered_premiums %}
+        <tr>
+            <td>{{ row.coverage_type|default:"Unknown" }}</td>
+            <td>{{ row.carrier|default:"Unknown" }}</td>
+            <td>{{ row.policy_count }}</td>
+            <td>${{ row.total_premium|floatformat:2|intcomma }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="4">No data</td></tr>
+        {% endfor %}
+        <tr style="font-weight: bold;">
+            <td colspan="2">Total</td>
+            <td>{{ brokered_total.total_policies|default:0 }}</td>
+            <td>${{ brokered_total.total_premium|floatformat:2|intcomma }}</td>
+        </tr>
+    </tbody>
+</table>
+
+<h2>Grand Total</h2>
+<table>
+    <tbody>
+        <tr>
+            <td>RRG</td>
+            <td>${{ grand_total_rrg|floatformat:2|intcomma }}</td>
+        </tr>
+        <tr>
+            <td>Brokered</td>
+            <td>${{ grand_total_brokered|floatformat:2|intcomma }}</td>
+        </tr>
+        <tr style="font-weight: bold;">
+            <td>Total</td>
+            <td>${{ grand_total|floatformat:2|intcomma }}</td>
+        </tr>
+    </tbody>
+</table>
+
+<p style="margin-top: 20px;">
+    <a href="{% url 'admin:index' %}">&laquo; Back to Admin</a>
+</p>
+{% endblock %}

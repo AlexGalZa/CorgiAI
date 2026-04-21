@@ -1,0 +1,106 @@
+{% extends "admin/base_site.html" %}
+{% load i18n %}
+
+{% block title %}Regulatory Reporting{% endblock %}
+
+{% block content %}
+<div style="padding: 20px 0;">
+  <h1 style="font-size: 1.6rem; font-weight: 700; margin-bottom: 4px;">Regulatory Reporting</h1>
+  <p style="color: #666; margin-bottom: 24px;">
+    State-by-state premium, policy count, and loss data for regulatory filing.
+    Export as CSV for state insurance department submissions.
+  </p>
+
+  <!-- Filters -->
+  <div style="background: #fff; border: 1px solid #e5e7eb; border-radius: 8px; padding: 20px; margin-bottom: 24px;">
+    <form method="get" style="display: flex; gap: 16px; align-items: flex-end; flex-wrap: wrap;">
+      <div>
+        <label style="display: block; font-size: 0.75rem; font-weight: 600; color: #374151; margin-bottom: 4px;">State</label>
+        <select name="state" style="border: 1px solid #d1d5db; border-radius: 6px; padding: 6px 12px; font-size: 0.875rem; min-width: 100px;">
+          <option value="">All States</option>
+          {% for s in states %}
+          <option value="{{ s }}" {% if s == selected_state %}selected{% endif %}>{{ s }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div>
+        <label style="display: block; font-size: 0.75rem; font-weight: 600; color: #374151; margin-bottom: 4px;">Quarter</label>
+        <select name="quarter" style="border: 1px solid #d1d5db; border-radius: 6px; padding: 6px 12px; font-size: 0.875rem; min-width: 130px;">
+          <option value="">All Quarters</option>
+          {% for q in quarters %}
+          <option value="{{ q }}" {% if q == selected_quarter %}selected{% endif %}>{{ q }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <button type="submit" style="background: #ff5c00; color: #fff; border: none; border-radius: 6px; padding: 8px 16px; font-size: 0.875rem; font-weight: 600; cursor: pointer;">
+        Filter
+      </button>
+      <a href="?state={{ selected_state }}&quarter={{ selected_quarter }}&export=csv"
+         style="background: #1f2937; color: #fff; border-radius: 6px; padding: 8px 16px; font-size: 0.875rem; font-weight: 600; text-decoration: none;">
+        ⬇ Download CSV
+      </a>
+    </form>
+  </div>
+
+  <!-- Data Table -->
+  {% if report.rows %}
+  <div style="background: #fff; border: 1px solid #e5e7eb; border-radius: 8px; overflow-x: auto;">
+    <table style="width: 100%; border-collapse: collapse; font-size: 0.875rem;">
+      <thead>
+        <tr style="background: #f9fafb; text-align: right;">
+          <th style="text-align: left; padding: 10px 16px; border-bottom: 2px solid #e5e7eb;">State</th>
+          <th style="padding: 10px 16px; border-bottom: 2px solid #e5e7eb;">Quarter</th>
+          <th style="padding: 10px 16px; border-bottom: 2px solid #e5e7eb;">Policies</th>
+          <th style="padding: 10px 16px; border-bottom: 2px solid #e5e7eb;">Written Premium</th>
+          <th style="padding: 10px 16px; border-bottom: 2px solid #e5e7eb;">Earned Premium</th>
+          <th style="padding: 10px 16px; border-bottom: 2px solid #e5e7eb;">Paid Losses</th>
+          <th style="padding: 10px 16px; border-bottom: 2px solid #e5e7eb;">Incurred Losses</th>
+          <th style="padding: 10px 16px; border-bottom: 2px solid #e5e7eb;">Loss Ratio</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in report.rows %}
+        <tr style="border-bottom: 1px solid #f3f4f6; text-align: right;">
+          <td style="text-align: left; padding: 10px 16px; font-weight: 600;">{{ row.state }}</td>
+          <td style="padding: 10px 16px;">{{ row.quarter }}</td>
+          <td style="padding: 10px 16px;">{{ row.policy_count }}</td>
+          <td style="padding: 10px 16px;">${{ row.written_premium|floatformat:0 }}</td>
+          <td style="padding: 10px 16px;">${{ row.earned_premium|floatformat:0 }}</td>
+          <td style="padding: 10px 16px;">${{ row.paid_losses|floatformat:0 }}</td>
+          <td style="padding: 10px 16px;">${{ row.incurred_losses|floatformat:0 }}</td>
+          <td style="padding: 10px 16px;
+            {% if row.loss_ratio_pct %}
+              {% if row.loss_ratio_pct > 100 %}color: #ef4444;
+              {% elif row.loss_ratio_pct > 70 %}color: #f59e0b;
+              {% else %}color: #10b981;{% endif %}
+            {% endif %}
+            font-weight: 600;">
+            {% if row.loss_ratio_pct %}{{ row.loss_ratio_pct }}%{% else %}—{% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+        <!-- Totals row -->
+        <tr style="background: #f9fafb; font-weight: 700; text-align: right; border-top: 2px solid #e5e7eb;">
+          <td style="text-align: left; padding: 10px 16px;">TOTAL</td>
+          <td style="padding: 10px 16px;">—</td>
+          <td style="padding: 10px 16px;">{{ report.totals.policy_count }}</td>
+          <td style="padding: 10px 16px;">${{ report.totals.written_premium|floatformat:0 }}</td>
+          <td style="padding: 10px 16px;">${{ report.totals.earned_premium|floatformat:0 }}</td>
+          <td style="padding: 10px 16px;">${{ report.totals.paid_losses|floatformat:0 }}</td>
+          <td style="padding: 10px 16px;">${{ report.totals.incurred_losses|floatformat:0 }}</td>
+          <td style="padding: 10px 16px;">{% if report.totals.loss_ratio_pct %}{{ report.totals.loss_ratio_pct }}%{% else %}—{% endif %}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div style="background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px; padding: 40px; text-align: center; color: #6b7280;">
+    <p style="font-size: 1rem;">No data for the selected filters.</p>
+  </div>
+  {% endif %}
+
+  <div style="margin-top: 24px;">
+    <a href="/admin/" style="color: #6b7280; font-size: 0.875rem;">← Back to Dashboard</a>
+  </div>
+</div>
+{% endblock %}

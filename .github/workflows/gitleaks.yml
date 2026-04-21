@@ -1,0 +1,31 @@
+name: Gitleaks
+
+# Scans the repo history for leaked secrets (API keys, tokens, private
+# keys). Runs on every push and PR, plus a daily cron so new patterns
+# catch old commits.
+
+on:
+  # push + pull_request disabled while GH Actions billing is capped.
+  # Re-enable by uncommenting once minutes reset or billing is added.
+  # push:
+  # pull_request:
+  workflow_dispatch:
+  schedule:
+    - cron: "23 5 * * *"
+
+permissions:
+  contents: read
+
+jobs:
+  scan:
+    name: Scan for secrets
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITLEAKS_ENABLE_COMMENTS: "true"

@@ -1,0 +1,126 @@
+{% extends "admin/base_site.html" %}
+{% load i18n admin_urls humanize %}
+
+{% block content %}
+<div style="color: #666; margin-bottom: 15px; font-size: 13px; line-height: 1.6;">
+    <p style="margin: 0 0 6px 0;"><strong>Scope:</strong> {% if include_brokered %}All policies (TECHRRG + brokered).{% else %}Non-brokered (TECHRRG) policies only.{% endif %}</p>
+    <p style="margin: 0 0 6px 0;"><strong>Proration:</strong> Earned premium is prorated by active days in the month (e.g., a policy starting Jan 15 counts 17 of 31 days).</p>
+    <p style="margin: 0 0 6px 0;"><strong>Admin Fee:</strong> 22% of the pre-tax premium (Corgi Admin's portion). State surplus lines taxes are backed out first.</p>
+    <p style="margin: 0;"><strong>Premium Portion:</strong> Earned premium minus the admin fee (the remaining 78%).</p>
+</div>
+
+<form method="get" style="margin-bottom: 20px; display: flex; align-items: center; gap: 15px;">
+    <div>
+        <label for="month">Month:</label>
+        <select name="month" id="month" onchange="this.form.submit()">
+            {% for m_num, m_name in months %}
+            <option value="{{ m_num }}" {% if selected_month == m_num %}selected{% endif %}>{{ m_name }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div>
+        <label for="year">Year:</label>
+        <select name="year" id="year" onchange="this.form.submit()">
+            {% for y in years %}
+            <option value="{{ y }}" {% if selected_year == y %}selected{% endif %}>{{ y }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div style="display: flex; align-items: center; gap: 5px;">
+        <input type="checkbox" name="include_brokered" id="include_brokered" onchange="this.form.submit()" {% if include_brokered %}checked{% endif %}>
+        <label for="include_brokered">Include Brokered</label>
+    </div>
+    <a href="{% url 'admin:policies_policy_premiums_paid_export' %}?month={{ selected_month }}&year={{ selected_year }}{% if include_brokered %}&include_brokered=on{% endif %}" class="button" style="padding: 5px 15px;">Export CSV</a>
+</form>
+
+<div class="results">
+    <table style="margin-bottom: 20px; width: auto;">
+        <thead>
+            <tr>
+                <th>Summary for {{ selected_month }}/{{ selected_year }}</th>
+                <th>Amount</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Total Earned Premium</td>
+                <td>${{ total_earned_premium|floatformat:2|intcomma }}</td>
+            </tr>
+            <tr>
+                <td>Total Admin Fees</td>
+                <td>${{ total_admin_fees|floatformat:2|intcomma }}</td>
+            </tr>
+            <tr style="font-weight: bold;">
+                <td>Total Premium Portion</td>
+                <td>${{ total_premium_portion|floatformat:2|intcomma }}</td>
+            </tr>
+            <tr style="border-top: 2px solid #999;">
+                <td>Total Cash Collected</td>
+                <td>${{ total_cash_collected|floatformat:2|intcomma }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <table id="result_list">
+        <thead>
+            <tr>
+                <th>Policy Number</th>
+                <th>Coverage</th>
+                <th>Billing</th>
+                <th>Policy Start</th>
+                <th>Policy End</th>
+                <th>Period Start</th>
+                <th>Period End</th>
+                <th>Days</th>
+                <th>Billing Premium</th>
+                <th>Earned Premium</th>
+                <th>Admin Fee</th>
+                <th>Premium Portion</th>
+                <th>Cash Collected</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for policy in policies %}
+            <tr>
+                <td><a href="{% url 'admin:policies_policy_change' policy.id %}">{{ policy.policy_number }}</a></td>
+                <td>{{ policy.coverage_type }}</td>
+                <td style="text-transform: capitalize;">{{ policy.billing_frequency }}</td>
+                <td>{{ policy.effective_date|date:"Y-m-d" }}</td>
+                <td>{{ policy.expiration_date|date:"Y-m-d" }}</td>
+                <td>{{ policy.period_start|date:"Y-m-d" }}</td>
+                <td>{{ policy.period_end|date:"Y-m-d" }}</td>
+                <td>{{ policy.active_days }}</td>
+                <td>${{ policy.billing_premium|floatformat:2|intcomma }}</td>
+                <td>${{ policy.earned_premium|floatformat:2|intcomma }}</td>
+                <td>${{ policy.admin_fee|floatformat:2|intcomma }}</td>
+                <td>${{ policy.premium_portion|floatformat:2|intcomma }}</td>
+                <td>${{ policy.cash_collected|floatformat:2|intcomma }}</td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="13">No policies found for this month/year.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <p class="paginator">
+        {% if page_obj.has_previous %}
+            <a href="?month={{ selected_month }}&year={{ selected_year }}{% if include_brokered %}&include_brokered=on{% endif %}&page={{ page_obj.previous_page_number }}">Previous</a>
+        {% endif %}
+
+        <span class="this-page">
+            Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+            {% if page_obj.paginator.count > 0 %}
+                ({{ page_obj.paginator.count }} item{{ page_obj.paginator.count|pluralize }})
+            {% endif %}
+        </span>
+
+        {% if page_obj.has_next %}
+            <a href="?month={{ selected_month }}&year={{ selected_year }}{% if include_brokered %}&include_brokered=on{% endif %}&page={{ page_obj.next_page_number }}">Next</a>
+        {% endif %}
+    </p>
+</div>
+
+<p style="margin-top: 20px;">
+    <a href="{% url 'admin:index' %}">&laquo; Back to Admin</a>
+</p>
+{% endblock %}

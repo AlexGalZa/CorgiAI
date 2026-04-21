@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Certificate of Insurance</title>
+    <style>
+        body { margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #F9F9F9; color: #1D1D1D; line-height: 1.6; }
+        .email-wrapper { width: 100%; background-color: #F9F9F9; padding: 40px 20px; }
+        .email-container { max-width: 600px; margin: 0 auto; background-color: #FFFFFF; border-radius: 25px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        .header { background-color: #ff5c00; padding: 32px 40px; }
+        .header-logo { font-size: 22px; font-weight: 700; color: #FFFFFF; letter-spacing: -0.5px; }
+        .body { padding: 40px; }
+        .body h1 { font-size: 24px; font-weight: 700; color: #1D1D1D; margin: 0 0 16px; }
+        .body p { font-size: 15px; color: #4E4E4E; margin: 0 0 20px; }
+        .coi-badge { background-color: #F0FDF4; border: 1px solid #BBF7D0; border-radius: 12px; padding: 20px 24px; margin: 24px 0; }
+        .coi-badge .label { font-size: 12px; font-weight: 600; color: #16a34a; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+        .coi-badge .value { font-size: 18px; font-weight: 700; color: #1D1D1D; }
+        .footer { padding: 24px 40px; border-top: 1px solid #F0F0F0; }
+        .footer p { font-size: 13px; color: #969696; margin: 0; }
+    </style>
+</head>
+<body>
+<div class="email-wrapper">
+    <div class="email-container">
+        <div class="header">
+            <div class="header-logo">🐕 Corgi Insurance</div>
+        </div>
+        <div class="body">
+            <h1>Your Certificate of Insurance</h1>
+            <p>Hi {{ name }},</p>
+            <p>You've been added as an <strong>Additional Insured</strong> on a Corgi Insurance policy. Your Certificate of Insurance (COI) is attached to this email.</p>
+
+            <div class="coi-badge">
+                <div class="label">Certificate Number</div>
+                <div class="value">{{ coi_number }}</div>
+            </div>
+
+            <p>The attached PDF contains your full certificate details, including coverage information and the policyholder's name. You can present this certificate to any party requiring proof of coverage.</p>
+
+            <p style="margin-top:32px;font-size:13px;color:#969696;">If you believe you received this email in error, please contact the policyholder or reach out to <a href="mailto:hello@corgi.insure" style="color:#ff5c00;">hello@corgi.insure</a>.</p>
+        </div>
+        <div class="footer">
+            <p>© Corgi Insurance · <a href="{{ portal_url }}" style="color:#ff5c00;text-decoration:none;">corgi.insure</a></p>
+        </div>
+    </div>
+</div>
+</body>
+</html>

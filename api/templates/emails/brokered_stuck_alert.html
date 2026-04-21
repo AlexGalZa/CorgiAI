@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Deals Stuck in Brokering</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.5;
+            color: #1D1D1D;
+            max-width: 760px;
+            margin: 0 auto;
+            padding: 24px;
+            background-color: #F9F9F9;
+        }
+        h1 {
+            font-size: 22px;
+            margin: 0 0 4px;
+        }
+        .subtitle {
+            color: #4E4E4E;
+            font-size: 13px;
+            margin-bottom: 20px;
+        }
+        .summary {
+            background: #FFFFFF;
+            border-radius: 10px;
+            padding: 14px 18px;
+            margin-bottom: 20px;
+            border: 1px solid #E8E8E8;
+        }
+        .summary strong {
+            color: #FF5C00;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #FFFFFF;
+            border-radius: 10px;
+            overflow: hidden;
+            border: 1px solid #E8E8E8;
+            margin-bottom: 20px;
+        }
+        th, td {
+            text-align: left;
+            padding: 10px 12px;
+            font-size: 13px;
+            border-bottom: 1px solid #E8E8E8;
+        }
+        th {
+            background: #F3F3F3;
+            color: #1D1D1D;
+            font-weight: 600;
+        }
+        tr:last-child td {
+            border-bottom: none;
+        }
+        .days {
+            font-weight: 600;
+            color: #FF5C00;
+            white-space: nowrap;
+        }
+        .muted {
+            color: #4E4E4E;
+            font-size: 12px;
+        }
+        .empty {
+            background: #FFFFFF;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            color: #4E4E4E;
+            border: 1px solid #E8E8E8;
+        }
+        .footer {
+            font-size: 11px;
+            color: #9A9A9A;
+            margin-top: 20px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <h1>Deals Stuck in Brokering</h1>
+    <p class="subtitle">
+        The following deals have been sitting in <code>status=brokering</code>
+        for at least <strong>{{ threshold_days }}</strong> day(s).
+    </p>
+
+    <div class="summary">
+        <strong>{{ total }}</strong> deal(s) past the
+        <strong>{{ threshold_days }}</strong>-day threshold.
+    </div>
+
+    {% if deals %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Policy / Quote #</th>
+                    <th>Company</th>
+                    <th>Days Stuck</th>
+                    <th>Assigned To</th>
+                    <th>Source</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for d in deals %}
+                    <tr>
+                        <td>{{ d.policy_number }}</td>
+                        <td>{{ d.company_name }}</td>
+                        <td class="days">{{ d.days_stuck }}</td>
+                        <td class="muted">{{ d.assigned_to }}</td>
+                        <td class="muted">{{ d.kind }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <div class="empty">No deals are currently stuck in brokering. Nice.</div>
+    {% endif %}
+
+    <div class="footer">
+        Automated alert from the Corgi monorepo &middot; generated {{ generated_at }}
+    </div>
+</body>
+</html>

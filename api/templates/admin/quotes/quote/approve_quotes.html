@@ -1,0 +1,41 @@
+{% extends "admin/base_site.html" %}
+{% load i18n admin_urls %}
+
+{% block content %}
+<h1>{{ title }}</h1>
+
+<p>You are about to approve and send payment links for the following quotes:</p>
+
+<ul style="margin: 1em 0; padding-left: 2em;">
+    {% for quote in quotes %}
+    <li>
+        <strong>{{ quote.quote_number }}</strong> - {{ quote.company.entity_legal_name }}
+        {% if quote.quote_amount %}(${{ quote.quote_amount|floatformat:2 }}){% endif %}
+    </li>
+    {% endfor %}
+</ul>
+
+<form method="post">
+    {% csrf_token %}
+
+    <fieldset class="module aligned">
+        <h2>Policy Effective Date</h2>
+        <p class="help" style="margin-bottom: 1em;">
+            Select the effective date for the policy. Payment links will be generated with this date.
+            For monthly subscriptions with a future date, billing will start on the effective date.
+        </p>
+        <div class="form-row">
+            <div>
+                <label for="id_effective_date">Effective Date:</label>
+                {{ form.effective_date }}
+                <p class="help">{{ form.effective_date.help_text }}</p>
+            </div>
+        </div>
+    </fieldset>
+
+    <div class="submit-row">
+        <input type="submit" value="Approve and Send" class="default">
+        <a href="{% url 'admin:quotes_quote_changelist' %}" class="closelink">Cancel</a>
+    </div>
+</form>
+{% endblock %}

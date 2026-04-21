@@ -1,0 +1,63 @@
+{% extends "admin/base_site.html" %}
+{% load i18n admin_urls %}
+
+{% block content %}
+
+<div style="margin-bottom: 20px; padding: 15px; background: var(--darkened-bg); color: var(--body-fg); border: 1px solid var(--hairline-color); border-radius: 5px;">
+    <strong>Policy:</strong> {{ policy.policy_number }}<br>
+    <strong>Coverage:</strong> {{ policy.coverage_type }}<br>
+    <strong>Current Premium:</strong> ${{ policy.premium }}<br>
+    <strong>Billing:</strong> {{ policy.billing_frequency }}
+    {% if policy.monthly_premium %}
+        (${{ policy.monthly_premium }}/month)
+    {% endif %}<br>
+    <strong>Current Effective Date:</strong> {{ policy.effective_date }}<br>
+    <strong>Expiration Date:</strong> {{ policy.expiration_date }}
+</div>
+
+<form method="post">
+    {% csrf_token %}
+
+    <fieldset class="module aligned">
+        <h2>New Effective Date</h2>
+        <div class="form-row">
+            <div>
+                <label for="id_new_effective_date">{{ form.new_effective_date.label }}:</label>
+                {{ form.new_effective_date }}
+                <p class="help">Must be before the current effective date ({{ policy.effective_date }}), up to 30 days max. The expiration date stays the same, extending the policy term.</p>
+                {% if form.new_effective_date.errors %}<ul class="errorlist">{% for e in form.new_effective_date.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+            </div>
+        </div>
+        <div class="form-row" style="margin-top: 10px;">
+            <input type="submit" name="preview" value="Preview Charge" formnovalidate style="background: #417690; color: white; padding: 6px 15px; border: none; border-radius: 4px; cursor: pointer;">
+        </div>
+    </fieldset>
+
+    {% if preview %}
+    <div style="margin: 15px 0; padding: 15px; background: #1a3a1a; color: #90EE90; border: 1px solid #2d5a2d; border-radius: 5px;">
+        <strong>Preview:</strong><br>
+        New effective date: {{ preview.new_effective_date }}<br>
+        Extra days of coverage: {{ preview.extra_days }}<br>
+        New annual premium: ${{ preview.new_premium }}<br>
+        <strong>Extra charge: ${{ preview.premium_delta }}</strong>
+    </div>
+    {% endif %}
+
+    <fieldset class="module aligned">
+        <h2>Reason</h2>
+        <div class="form-row">
+            <div>
+                <label for="id_reason">{{ form.reason.label }}:</label>
+                {{ form.reason }}
+                <p class="help">Explain why the effective date is being backdated. This will be recorded in the transaction log.</p>
+                {% if form.reason.errors %}<ul class="errorlist">{% for e in form.reason.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+            </div>
+        </div>
+    </fieldset>
+
+    <div class="submit-row">
+        <input type="submit" name="apply" value="Apply Endorsement" class="default">
+        <a href="{% url 'admin:policies_policy_change' policy.pk %}" class="closelink">Cancel</a>
+    </div>
+</form>
+{% endblock %}

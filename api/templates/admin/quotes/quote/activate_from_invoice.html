@@ -1,0 +1,65 @@
+{% extends "admin/base_site.html" %}
+{% load i18n admin_urls %}
+
+{% block content %}
+
+{% if coverage_summary %}
+<fieldset class="module aligned">
+    <h2>Coverage Summary</h2>
+    <table style="width: 100%; border-collapse: collapse;">
+        <thead>
+            <tr>
+                <th style="text-align: left; padding: 6px 10px; border-bottom: 1px solid #ccc;">Coverage</th>
+                <th style="text-align: right; padding: 6px 10px; border-bottom: 1px solid #ccc;">Premium</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in coverage_summary %}
+            <tr>
+                <td style="padding: 6px 10px;">{{ row.coverage }}</td>
+                <td style="padding: 6px 10px; text-align: right;">${{ row.premium }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</fieldset>
+{% endif %}
+
+<form method="post">
+    {% csrf_token %}
+
+    <fieldset class="module aligned">
+        <h2>Invoice Details</h2>
+        <div class="form-row">
+            <div>
+                <label for="id_stripe_payment_intent_id">{{ form.stripe_payment_intent_id.label }}:</label>
+                {{ form.stripe_payment_intent_id }}
+                <p class="help">{{ form.stripe_payment_intent_id.help_text }}</p>
+                {% if form.stripe_payment_intent_id.errors %}
+                <ul class="errorlist">
+                    {% for error in form.stripe_payment_intent_id.errors %}<li>{{ error }}</li>{% endfor %}
+                </ul>
+                {% endif %}
+            </div>
+        </div>
+        <div class="form-row">
+            <div>
+                <label for="id_effective_date">Effective Date:</label>
+                {{ form.effective_date }}
+                <p class="help">{{ form.effective_date.help_text }}</p>
+                {% if form.effective_date.errors %}
+                <ul class="errorlist">
+                    {% for error in form.effective_date.errors %}<li>{{ error }}</li>{% endfor %}
+                </ul>
+                {% endif %}
+            </div>
+        </div>
+    </fieldset>
+
+    <div class="submit-row">
+        <input type="submit" value="Activate Policies" class="default"
+               onclick="return confirm('This will create policies and send documents to the customer. Continue?');">
+        <a href="{% url 'admin:quotes_quote_change' quote.id %}" class="closelink">Cancel</a>
+    </div>
+</form>
+{% endblock %}

@@ -1,0 +1,55 @@
+{% extends "admin/base_site.html" %}
+{% load i18n humanize %}
+
+{% block title %}Broker Performance Scoreboard{% endblock %}
+
+{% block content %}
+<h1>Broker Performance Scoreboard</h1>
+<p>Ranked by production volume. Hit ratio = bound policies / total quotes from producer's orgs.</p>
+
+<h2>Summary</h2>
+<table>
+  <thead>
+    <tr><th>Metric</th><th>Value</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Total Production Volume</td><td>${{ data.total_production|floatformat:0|intcomma }}</td></tr>
+    <tr><td>Total Commission Earned</td><td>${{ data.total_commission|floatformat:0|intcomma }}</td></tr>
+    <tr><td>Active Producers</td><td>{{ data.brokers|length }}</td></tr>
+  </tbody>
+</table>
+
+<h2>Producer Rankings</h2>
+<table>
+  <thead>
+    <tr>
+      <th>#</th>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Production Volume</th>
+      <th>Quotes</th>
+      <th>Bound</th>
+      <th>Hit Ratio</th>
+      <th>Avg Deal Size</th>
+      <th>Commission Earned</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for broker in data.brokers %}
+    <tr>
+      <td>{{ forloop.counter }}</td>
+      <td>{{ broker.producer_name }}</td>
+      <td>{{ broker.producer_type }}</td>
+      <td>${{ broker.production_volume|floatformat:0|intcomma }}</td>
+      <td>{{ broker.quote_count|intcomma }}</td>
+      <td>{{ broker.bound_count|intcomma }}</td>
+      <td>{% if broker.hit_ratio %}{{ broker.hit_ratio }}%{% else %}—{% endif %}</td>
+      <td>{% if broker.avg_deal_size %}${{ broker.avg_deal_size|floatformat:0|intcomma }}{% else %}—{% endif %}</td>
+      <td>${{ broker.commission_earned|floatformat:0|intcomma }}</td>
+    </tr>
+    {% empty %}
+    <tr><td colspan="9">No active producers found.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

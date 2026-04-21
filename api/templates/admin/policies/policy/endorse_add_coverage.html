@@ -1,0 +1,121 @@
+{% extends "admin/base_site.html" %}
+{% load i18n admin_urls %}
+
+{% block content %}
+
+<div style="margin-bottom: 20px; padding: 15px; background: var(--darkened-bg); color: var(--body-fg); border: 1px solid var(--hairline-color); border-radius: 5px;">
+    <strong>COI Number:</strong> {{ policy.coi_number }}<br>
+    <strong>Billing:</strong> {{ policy.billing_frequency }}<br>
+    <strong>Effective:</strong> {{ policy.effective_date }} &mdash; {{ policy.expiration_date }}<br>
+    <br>
+    <strong>Existing Coverages in this COI group:</strong>
+    <ul style="margin: 5px 0 0 20px;">
+    {% for coverage_type, premium in sibling_policies %}
+        <li>{{ coverage_type }} &mdash; ${{ premium }}</li>
+    {% endfor %}
+    </ul>
+</div>
+
+<form method="post">
+    {% csrf_token %}
+
+    <fieldset class="module aligned">
+        <h2>New Coverage</h2>
+        <div class="form-row">
+            <div>
+                <label for="id_coverage_type">{{ form.coverage_type.label }}:</label>
+                {{ form.coverage_type }}
+                {% if form.coverage_type.errors %}<ul class="errorlist">{% for e in form.coverage_type.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+            </div>
+        </div>
+        <div class="form-row" id="brokered-row" style="display: none;">
+            <div>
+                <label for="id_is_brokered">{{ form.is_brokered.label }}:</label>
+                {{ form.is_brokered }}
+                <p class="help">{{ form.is_brokered.help_text }}</p>
+                {% if form.is_brokered.errors %}<ul class="errorlist">{% for e in form.is_brokered.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+            </div>
+        </div>
+        <div class="form-row" id="carrier-row" style="display: none;">
+            <div>
+                <label for="id_carrier">{{ form.carrier.label }}:</label>
+                {{ form.carrier }}
+                <p class="help">{{ form.carrier.help_text }}</p>
+                {% if form.carrier.errors %}<ul class="errorlist">{% for e in form.carrier.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+            </div>
+        </div>
+    </fieldset>
+
+    <fieldset class="module aligned">
+        <h2>Limits</h2>
+        <div class="form-row">
+            <div>
+                <label for="id_aggregate_limit">{{ form.aggregate_limit.label }}:</label>
+                {{ form.aggregate_limit }}
+                {% if form.aggregate_limit.errors %}<ul class="errorlist">{% for e in form.aggregate_limit.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+            </div>
+        </div>
+        <div class="form-row">
+            <div>
+                <label for="id_per_occurrence_limit">{{ form.per_occurrence_limit.label }}:</label>
+                {{ form.per_occurrence_limit }}
+                {% if form.per_occurrence_limit.errors %}<ul class="errorlist">{% for e in form.per_occurrence_limit.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+            </div>
+        </div>
+        <div class="form-row">
+            <div>
+                <label for="id_retention">{{ form.retention.label }}:</label>
+                {{ form.retention }}
+                {% if form.retention.errors %}<ul class="errorlist">{% for e in form.retention.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+            </div>
+        </div>
+    </fieldset>
+
+    <fieldset class="module aligned">
+        <h2>Premium</h2>
+        <div class="form-row">
+            <div>
+                <label for="id_premium">{{ form.premium.label }}:</label>
+                {{ form.premium }}
+                <p class="help">The full-term annual premium for this coverage. For annual policies, a pro-rated charge will be applied. For monthly policies, the monthly amount will be (annual / 12).</p>
+                {% if form.premium.errors %}<ul class="errorlist">{% for e in form.premium.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+            </div>
+        </div>
+    </fieldset>
+
+    <fieldset class="module aligned">
+        <h2>Reason</h2>
+        <div class="form-row">
+            <div>
+                <label for="id_reason">{{ form.reason.label }}:</label>
+                {{ form.reason }}
+                <p class="help">Explain why this coverage is being added mid-term.</p>
+                {% if form.reason.errors %}<ul class="errorlist">{% for e in form.reason.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+            </div>
+        </div>
+    </fieldset>
+
+    <div class="submit-row">
+        <input type="submit" value="Add Coverage" class="default">
+        <a href="{% url 'admin:policies_policy_change' policy.pk %}" class="closelink">Cancel</a>
+    </div>
+</form>
+<script>
+(function() {
+    var brokeredCheckbox = document.getElementById('id_is_brokered');
+    var brokeredRow = document.getElementById('brokered-row');
+    var carrierRow = document.getElementById('carrier-row');
+    var coverageSelect = document.getElementById('id_coverage_type');
+
+    function update() {
+        var isBrokeredType = coverageSelect.value && coverageSelect.value.startsWith('custom-');
+        brokeredRow.style.display = isBrokeredType ? '' : 'none';
+        carrierRow.style.display = isBrokeredType ? '' : 'none';
+        brokeredCheckbox.checked = isBrokeredType;
+    }
+
+    coverageSelect.addEventListener('change', update);
+    update();
+})();
+</script>
+{% endblock %}

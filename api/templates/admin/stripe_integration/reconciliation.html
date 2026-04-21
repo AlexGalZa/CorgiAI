@@ -1,0 +1,128 @@
+{% extends "admin/base_site.html" %}
+{% load humanize %}
+
+{% block title %}Payment Reconciliation Dashboard{% endblock %}
+
+{% block content %}
+<div style="max-width: 1200px;">
+  <h1 style="margin-bottom: 24px;">💳 Payment Reconciliation Dashboard</h1>
+
+  {% if reconciliation.error %}
+    <div style="background: #fef2f2; border: 1px solid #ef4444; padding: 16px; border-radius: 8px; margin-bottom: 24px;">
+      <strong>Error loading data:</strong> {{ reconciliation.error }}
+      {% if reconciliation.traceback %}
+        <pre style="font-size: 11px; margin-top: 8px; white-space: pre-wrap;">{{ reconciliation.traceback }}</pre>
+      {% endif %}
+    </div>
+  {% else %}
+
+  {# ── Headline Metrics ── #}
+  {% with h=reconciliation.headline %}
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 32px;">
+    <div style="background: #f0fdf4; border: 1px solid #86efac; padding: 16px; border-radius: 8px;">
+      <div style="font-size: 13px; color: #16a34a; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;">Active Policies</div>
+      <div style="font-size: 28px; font-weight: 700; color: #15803d;">{{ h.total_active_policies }}</div>
+    </div>
+    <div style="background: {% if h.total_past_due_policies > 0 %}#fef2f2{% else %}#f0fdf4{% endif %}; border: 1px solid {% if h.total_past_due_policies > 0 %}#fca5a5{% else %}#86efac{% endif %}; padding: 16px; border-radius: 8px;">
+      <div style="font-size: 13px; color: {% if h.total_past_due_policies > 0 %}#dc2626{% else %}#16a34a{% endif %}; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;">Past Due</div>
+      <div style="font-size: 28px; font-weight: 700; color: {% if h.total_past_due_policies > 0 %}#dc2626{% else %}#15803d{% endif %};">{{ h.total_past_due_policies }}</div>
+    </div>
+    <div style="background: #eff6ff; border: 1px solid #93c5fd; padding: 16px; border-radius: 8px;">
+      <div style="font-size: 13px; color: #2563eb; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;">Last 30d Collected</div>
+      <div style="font-size: 28px; font-weight: 700; color: #1d4ed8;">${{ h.last_30_days_collected|floatformat:0|intcomma }}</div>
+    </div>
+    <div style="background: {% if h.last_30_days_failed > 0 %}#fef2f2{% else %}#f9fafb{% endif %}; border: 1px solid {% if h.last_30_days_failed > 0 %}#fca5a5{% else %}#e5e7eb{% endif %}; padding: 16px; border-radius: 8px;">
+      <div style="font-size: 13px; color: #6b7280; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;">Last 30d Failed</div>
+      <div style="font-size: 28px; font-weight: 700; color: {% if h.last_30_days_failed > 0 %}#dc2626{% else %}#374151{% endif %};">${{ h.last_30_days_failed|floatformat:0|intcomma }}</div>
+    </div>
+    <div style="background: #f5f3ff; border: 1px solid #c4b5fd; padding: 16px; border-radius: 8px;">
+      <div style="font-size: 13px; color: #7c3aed; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;">All-Time Collected</div>
+      <div style="font-size: 28px; font-weight: 700; color: #6d28d9;">${{ h.all_time_collected|floatformat:0|intcomma }}</div>
+    </div>
+  </div>
+  {% endwith %}
+
+  {# ── Aging Receivables ── #}
+  <h2 style="font-size: 18px; font-weight: 600; margin-bottom: 12px; color: #111827;">📅 Aging Receivables</h2>
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 32px;">
+    {% for bucket in reconciliation.aging_receivables %}
+    <div style="background: white; border: 1px solid #e5e7eb; padding: 16px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.04);">
+      <div style="font-size: 13px; color: #6b7280; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px;">{{ bucket.bucket }}</div>
+      <div style="font-size: 22px; font-weight: 700; color: {% if bucket.policy_count == 0 %}#9ca3af{% elif bucket.bucket == '90+ days' %}#dc2626{% elif bucket.bucket == '61-90 days' %}#d97706{% else %}#374151{% endif %};">
+        ${{ bucket.outstanding_amount|floatformat:0|intcomma }}
+      </div>
+      <div style="font-size: 12px; color: #9ca3af; margin-top: 2px;">{{ bucket.policy_count }} polic{{ bucket.policy_count|pluralize:"y,ies" }}</div>
+      {% if bucket.oldest_due_days > 0 %}
+      <div style="font-size: 11px; color: #d97706; margin-top: 4px;">Oldest: {{ bucket.oldest_due_days }}d overdue</div>
+      {% endif %}
+    </div>
+    {% endfor %}
+  </div>
+
+  {# ── Monthly Reconciliation Table ── #}
+  <h2 style="font-size: 18px; font-weight: 600; margin-bottom: 12px; color: #111827;">📊 Monthly Premium Reconciliation</h2>
+  <div style="background: white; border: 1px solid #e5e7eb; border-radius: 8px; overflow: hidden; margin-bottom: 32px;">
+    <table style="width: 100%; border-collapse: collapse; font-size: 13px;">
+      <thead>
+        <tr style="background: #f9fafb; border-bottom: 2px solid #e5e7eb;">
+          <th style="padding: 10px 14px; text-align: left; font-weight: 600; color: #374151;">Month</th>
+          <th style="padding: 10px 14px; text-align: right; font-weight: 600; color: #374151;">Expected</th>
+          <th style="padding: 10px 14px; text-align: right; font-weight: 600; color: #374151;">Collected</th>
+          <th style="padding: 10px 14px; text-align: right; font-weight: 600; color: #374151;">Failed</th>
+          <th style="padding: 10px 14px; text-align: right; font-weight: 600; color: #374151;">Refunded</th>
+          <th style="padding: 10px 14px; text-align: right; font-weight: 600; color: #374151;">Net</th>
+          <th style="padding: 10px 14px; text-align: right; font-weight: 600; color: #374151;">Rate</th>
+          <th style="padding: 10px 14px; text-align: right; font-weight: 600; color: #374151;">Policies</th>
+          <th style="padding: 10px 14px; text-align: right; font-weight: 600; color: #374151;">Payments</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for m in reconciliation.monthly_reconciliation %}
+        <tr style="border-bottom: 1px solid #f3f4f6; {% if forloop.first %}background: #fffbeb;{% endif %}">
+          <td style="padding: 10px 14px; font-weight: {% if forloop.first %}600{% else %}400{% endif %};">{{ m.month_label }}</td>
+          <td style="padding: 10px 14px; text-align: right;">${{ m.expected_premium|floatformat:0|intcomma }}</td>
+          <td style="padding: 10px 14px; text-align: right; color: #16a34a;">${{ m.collected_premium|floatformat:0|intcomma }}</td>
+          <td style="padding: 10px 14px; text-align: right; color: {% if m.failed_premium > 0 %}#dc2626{% else %}#9ca3af{% endif %};">${{ m.failed_premium|floatformat:0|intcomma }}</td>
+          <td style="padding: 10px 14px; text-align: right; color: #9ca3af;">${{ m.refunded_premium|floatformat:0|intcomma }}</td>
+          <td style="padding: 10px 14px; text-align: right; font-weight: 600;">${{ m.net_collected|floatformat:0|intcomma }}</td>
+          <td style="padding: 10px 14px; text-align: right;">
+            <span style="
+              background: {% if m.collection_rate >= 95 %}#dcfce7{% elif m.collection_rate >= 80 %}#fef9c3{% else %}#fee2e2{% endif %};
+              color: {% if m.collection_rate >= 95 %}#15803d{% elif m.collection_rate >= 80 %}#92400e{% else %}#991b1b{% endif %};
+              padding: 2px 8px; border-radius: 4px; font-size: 12px; font-weight: 600;">
+              {{ m.collection_rate }}%
+            </span>
+          </td>
+          <td style="padding: 10px 14px; text-align: right; color: #6b7280;">{{ m.policy_count }}</td>
+          <td style="padding: 10px 14px; text-align: right; color: #6b7280;">{{ m.payment_count }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="9" style="padding: 16px; text-align: center; color: #9ca3af;">No data available.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  {# ── Collection Rate Trend ── #}
+  <h2 style="font-size: 18px; font-weight: 600; margin-bottom: 12px; color: #111827;">📈 Collection Rate Trend (Last 6 Months)</h2>
+  <div style="display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 32px;">
+    {% for rate in reconciliation.collection_rates %}
+    <div style="flex: 1; min-width: 120px; background: white; border: 1px solid #e5e7eb; padding: 14px; border-radius: 8px; text-align: center;">
+      <div style="font-size: 12px; color: #6b7280; margin-bottom: 6px;">{{ rate.period_label }}</div>
+      <div style="font-size: 24px; font-weight: 700; color: {% if rate.rate >= 95 %}#16a34a{% elif rate.rate >= 80 %}#d97706{% else %}#dc2626{% endif %};">
+        {{ rate.rate }}%
+      </div>
+      <div style="font-size: 11px; color: #9ca3af; margin-top: 4px;">${{ rate.collected|floatformat:0|intcomma }} / ${{ rate.expected|floatformat:0|intcomma }}</div>
+    </div>
+    {% endfor %}
+  </div>
+
+  <p style="font-size: 12px; color: #9ca3af; margin-top: 16px;">
+    ℹ️ Expected premium is estimated from active policy count × premium for the period.
+    Annual policies contribute their full premium in the effective month only.
+    Past-due policies show in aging receivables based on the first failed payment date.
+  </p>
+
+  {% endif %}
+</div>
+{% endblock %}
