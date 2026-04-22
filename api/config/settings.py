@@ -100,6 +100,7 @@ INSTALLED_APPS = [
     "knowledge_base",
     "demos",
     "ninja",
+    "aib",
 ]
 
 AUTH_USER_MODEL = "users.User"
