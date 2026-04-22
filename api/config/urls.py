@@ -36,6 +36,7 @@ from document_management.api import (
     public_share_view,
 )
 from demos.api import router as demos_router
+from aib.api import router as aib_router
 from common.exceptions import register_exception_handlers
 
 admin.site.site_header = "Corgi Insurance"
@@ -69,6 +70,7 @@ api.add_router("/analysis", analysis_router)
 api.add_router("/document-management", document_management_router)
 api.add_router("/config", config_router)
 api.add_router("/demos", demos_router)
+api.add_router("/aib", aib_router)
 
 external_api = NinjaAPI(
     urls_namespace="external_api",
