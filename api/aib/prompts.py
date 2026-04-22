@@ -37,6 +37,16 @@ STEP_SYSTEM_PROMPTS: dict[str, str] = {
     "summary": SYSTEM_PROMPT + "\n\nYou are on the SUMMARY step. Help the client review and confirm all the information they've provided.",
 }
 
+STEP_SUFFIXES: dict[str, str] = {
+    "get-started": "\n\nYou are on the GET STARTED step. Ask the client about their business and what type of coverage they need.",
+    "company": "\n\nYou are on the COMPANY INFO step. Focus on: legal company name, DBA, FEIN/EIN, number of employees, annual revenue, and annual payroll.",
+    "coverage-intro": "\n\nYou are on the BUSINESS ADDRESS step. Ask for the full business address including street, city, state, and ZIP.",
+    "coverage": "\n\nYou are on the COVERAGE QUESTIONS step. Ask coverage-specific risk questions relevant to the coverage type selected.",
+    "claims-history": "\n\nYou are on the CLAIMS HISTORY step. Ask about prior insurance claims, existing policies, and any known incidents.",
+    "products": "\n\nYou are on the PRODUCTS step. Help the client understand their coverage options, limits, and what each policy protects against.",
+    "summary": "\n\nYou are on the SUMMARY step. Help the client review and confirm all the information they've provided.",
+}
+
 STEP_GREETINGS: dict[str, str] = {
     "get-started": "Hi! I'm Trudy, your Corgi insurance advisor. Tell me a bit about your business — what does your company do, and what kind of coverage are you looking for?",
     "company": "Let's get your company details set. What's the legal name of your business, and roughly how many employees do you have?",
