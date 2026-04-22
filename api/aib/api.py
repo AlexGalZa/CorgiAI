@@ -1,8 +1,10 @@
+import secrets
 from uuid import UUID
 from ninja import Router, Schema
 from ninja.errors import HttpError
 from django.http import HttpRequest
 from django.shortcuts import get_object_or_404
+from django.db import transaction
 
 from aib.models import AibSession, AibMessage
 from aib.service import AibService
@@ -15,15 +17,14 @@ def _resolve_session(session_id: UUID, request: HttpRequest) -> AibSession:
     """Return session if the request has the matching token, else raise 403."""
     session = get_object_or_404(AibSession, id=session_id)
     token = request.headers.get("X-AIB-Token", "")
-    if token != session.session_token:
+    if not secrets.compare_digest(token, session.session_token):
         raise HttpError(403, "Invalid session token")
     return session
 
 
 def get_user_from_request(request: HttpRequest):
-    """Return authenticated User from JWT, or None for guests."""
-    if hasattr(request, "auth") and request.auth and hasattr(request.auth, "id"):
-        return request.auth
+    if request.user and request.user.is_authenticated:
+        return request.user
     return None
 
 
@@ -34,9 +35,17 @@ class CreateSessionOut(Schema):
     session_token: str
 
 
+class MessageOut(Schema):
+    id: UUID
+    role: str
+    content: str
+    extracted_fields: dict
+    created_at: str
+
+
 class SessionOut(Schema):
     session_id: UUID
-    messages: list[dict]
+    messages: list[MessageOut]
 
 
 class SendMessageIn(Schema):
@@ -68,13 +77,16 @@ def create_session(request: HttpRequest):
 @router.get("/sessions/{session_id}/", response=SessionOut, auth=None)
 def get_session(request: HttpRequest, session_id: UUID):
     session = _resolve_session(session_id, request)
-    messages = list(
-        session.messages.values("id", "role", "content", "extracted_fields", "created_at")
-    )
+    messages_qs = session.messages.values("id", "role", "content", "extracted_fields", "created_at")
+    messages = [
+        {**m, "id": str(m["id"]), "created_at": m["created_at"].isoformat()}
+        for m in messages_qs
+    ]
     return {"session_id": session.id, "messages": messages}
 
 
 @router.post("/sessions/{session_id}/messages/", response=SendMessageOut, auth=None)
+@transaction.atomic
 def send_message(request: HttpRequest, session_id: UUID, payload: SendMessageIn):
     session = _resolve_session(session_id, request)
 
@@ -101,7 +113,9 @@ def send_message(request: HttpRequest, session_id: UUID, payload: SendMessageIn)
 
 @router.post("/sessions/{session_id}/claim/", response=ClaimOut, auth=None)
 def claim_session(request: HttpRequest, session_id: UUID, payload: ClaimIn):
-    session = get_object_or_404(AibSession, id=session_id, session_token=payload.session_token)
+    session = get_object_or_404(AibSession, id=session_id)
+    if not secrets.compare_digest(payload.session_token, session.session_token):
+        raise HttpError(403, "Invalid session token")
     user = get_user_from_request(request)
     if user:
         session.user = user

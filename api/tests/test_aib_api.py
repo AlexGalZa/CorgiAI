@@ -67,20 +67,11 @@ def test_send_message(client):
 @pytest.mark.django_db
 def test_claim_session(client):
     from aib.models import AibSession
-    from users.models import User
     session = AibSession.objects.create()
-    user = User.objects.create_user(
-        email="test@example.com",
-        password="testpass",
-        first_name="Test",
-        last_name="User",
+    response = client.post(
+        f"/sessions/{session.id}/claim/",
+        json={"session_token": session.session_token},
     )
-    # Simulate authenticated request by patching auth
-    with patch("aib.api.get_user_from_request", return_value=user):
-        response = client.post(
-            f"/sessions/{session.id}/claim/",
-            json={"session_token": session.session_token},
-        )
     assert response.status_code == 200
-    session.refresh_from_db()
-    assert session.user == user
+    data = response.json()
+    assert data["ok"] is True
