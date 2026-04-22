@@ -10,6 +10,7 @@ def client():
     return TestClient(router)
 
 
+@pytest.mark.django_db
 def test_create_session(client):
     response = client.post("/sessions/")
     assert response.status_code == 201
