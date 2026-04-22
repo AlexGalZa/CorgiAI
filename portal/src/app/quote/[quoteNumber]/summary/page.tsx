@@ -90,7 +90,7 @@ export default function SummaryPage() {
         </QuoteFormLayout>
       </div>
       <div className="hidden lg:flex w-[340px] flex-col border-l border-border">
-        <TrudyPanel step="summary" setValue={setValue} isNewQuote={false} />
+        <TrudyPanel step="summary" setValue={setValue} isNewQuote={false} quoteNumber={quoteNumber} />
       </div>
     </div>
   );

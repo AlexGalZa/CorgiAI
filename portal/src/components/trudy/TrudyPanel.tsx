@@ -10,6 +10,7 @@ interface TrudyPanelProps<T extends FieldValues> {
   setValue: UseFormSetValue<T>;
   isNewQuote?: boolean;
   jwt?: string;
+  quoteNumber?: string;
 }
 
 export function TrudyPanel<T extends FieldValues>({
@@ -17,6 +18,7 @@ export function TrudyPanel<T extends FieldValues>({
   setValue,
   isNewQuote = false,
   jwt,
+  quoteNumber,
 }: TrudyPanelProps<T>) {
   const [input, setInput] = useState("");
   const bottomRef = useRef<HTMLDivElement>(null);
@@ -25,6 +27,7 @@ export function TrudyPanel<T extends FieldValues>({
     setValue,
     isNewQuote,
     jwt,
+    quoteNumber,
   });
 
   useEffect(() => {

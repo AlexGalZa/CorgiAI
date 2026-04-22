@@ -227,7 +227,7 @@ function CoverageForm({ quoteNumber, slug, stepId, config, router }: CoverageFor
         </QuoteFormLayout>
       </div>
       <div className="hidden lg:flex w-[340px] flex-col border-l border-border">
-        <TrudyPanel step={slug} setValue={setValue} isNewQuote={false} />
+        <TrudyPanel step={slug} setValue={setValue} isNewQuote={false} quoteNumber={quoteNumber} />
       </div>
     </div>
   );

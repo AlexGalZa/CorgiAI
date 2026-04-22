@@ -10,15 +10,14 @@ import {
   AibMessage,
 } from "@/lib/aib-api";
 import { mapExtractedFields } from "@/lib/trudy-field-map";
-
-const SESSION_ID_KEY = "trudy_session_id";
-const SESSION_TOKEN_KEY = "trudy_session_token";
+import { useQuoteStore } from "@/stores/use-quote-store";
 
 interface UseTrudyOptions<T extends FieldValues> {
   step: string;
   setValue: UseFormSetValue<T>;
   jwt?: string;
   isNewQuote?: boolean;
+  quoteNumber?: string;
 }
 
 interface TrudyState {
@@ -34,7 +33,16 @@ export function useTrudy<T extends FieldValues>({
   setValue,
   jwt,
   isNewQuote = false,
+  quoteNumber,
 }: UseTrudyOptions<T>) {
+  const { updateTrudyExtracted } = useQuoteStore();
+
+  // Per-quote scoped keys so two different quotes (or users) on the same
+  // browser never collide.
+  const scope = quoteNumber ?? "new";
+  const sessionIdKey = `trudy_session_id_${scope}`;
+  const sessionTokenKey = `trudy_session_token_${scope}`;
+
   const [state, setState] = useState<TrudyState>({
     messages: [],
     isLoading: false,
@@ -45,8 +53,8 @@ export function useTrudy<T extends FieldValues>({
 
   useEffect(() => {
     async function initSession() {
-      const storedId = localStorage.getItem(SESSION_ID_KEY);
-      const storedToken = localStorage.getItem(SESSION_TOKEN_KEY);
+      const storedId = localStorage.getItem(sessionIdKey);
+      const storedToken = localStorage.getItem(sessionTokenKey);
 
       if (storedId && storedToken) {
         try {
@@ -68,8 +76,8 @@ export function useTrudy<T extends FieldValues>({
       }
 
       const session = await createSession();
-      localStorage.setItem(SESSION_ID_KEY, session.session_id);
-      localStorage.setItem(SESSION_TOKEN_KEY, session.session_token);
+      localStorage.setItem(sessionIdKey, session.session_id);
+      localStorage.setItem(sessionTokenKey, session.session_token);
       setState((s) => ({
         ...s,
         sessionId: session.session_id,
@@ -80,7 +88,8 @@ export function useTrudy<T extends FieldValues>({
     }
 
     initSession();
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sessionIdKey, sessionTokenKey]);
 
   useEffect(() => {
     if (!jwt || !state.sessionId || !state.sessionToken) return;
@@ -137,11 +146,16 @@ export function useTrudy<T extends FieldValues>({
             shouldDirty: true,
           });
         }
+        // Also persist to store so other form sections can pick up the
+        // extracted values via their defaultValues.
+        if (Object.keys(mapped).length > 0) {
+          updateTrudyExtracted(mapped);
+        }
       } catch {
         setState((s) => ({ ...s, isLoading: false }));
       }
     },
-    [state.sessionId, state.sessionToken, step, setValue]
+    [state.sessionId, state.sessionToken, step, setValue, updateTrudyExtracted]
   );
 
   return {

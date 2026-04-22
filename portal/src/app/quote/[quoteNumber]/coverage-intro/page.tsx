@@ -57,7 +57,7 @@ export default function CoverageIntroPage() {
         </QuoteFormLayout>
       </div>
       <div className="hidden lg:flex w-[340px] flex-col border-l border-border">
-        <TrudyPanel step="coverage-intro" setValue={setValue} isNewQuote={false} />
+        <TrudyPanel step="coverage-intro" setValue={setValue} isNewQuote={false} quoteNumber={quoteNumber} />
       </div>
     </div>
   );

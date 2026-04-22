@@ -35,10 +35,11 @@ interface ShellProps {
   title: string;
   description: string;
   setValue: UseFormSetValue<FieldValues>;
+  quoteNumber: string;
   children: React.ReactNode;
 }
 
-function Shell({ title, description, setValue, children }: ShellProps) {
+function Shell({ title, description, setValue, quoteNumber, children }: ShellProps) {
   return (
     <div className="fixed inset-0 overflow-hidden bg-bg flex">
       <div className="flex-1 overflow-y-auto p-6 lg:p-10">
@@ -47,7 +48,7 @@ function Shell({ title, description, setValue, children }: ShellProps) {
         </QuoteFormLayout>
       </div>
       <div className="hidden lg:flex w-[340px] flex-col border-l border-border">
-        <TrudyPanel step="claims-history" setValue={setValue} isNewQuote={false} />
+        <TrudyPanel step="claims-history" setValue={setValue} isNewQuote={false} quoteNumber={quoteNumber} />
       </div>
     </div>
   );
@@ -115,6 +116,7 @@ function LossHistoryForm() {
       title="Loss history"
       description="Tell us about any past claims or known circumstances that could lead to a claim."
       setValue={setValue as unknown as UseFormSetValue<FieldValues>}
+      quoteNumber={quoteNumber}
     >
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         <FormField label="Have you had any claims in the past 5 years?" error={errors.has_past_claims?.message} required>
@@ -209,6 +211,7 @@ function InsuranceHistoryForm() {
       title="Insurance history"
       description="Let us know about your current or past business insurance."
       setValue={setValue as unknown as UseFormSetValue<FieldValues>}
+      quoteNumber={quoteNumber}
     >
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         <FormField label="Do you currently have this type of insurance?" error={errors.existing_insurance?.message} required>

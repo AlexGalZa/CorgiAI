@@ -54,10 +54,11 @@ interface ShellProps {
   description: string;
   trudyStep: string;
   setValue: UseFormSetValue<FieldValues>;
+  quoteNumber: string;
   children: React.ReactNode;
 }
 
-function Shell({ title, description, trudyStep, setValue, children }: ShellProps) {
+function Shell({ title, description, trudyStep, setValue, quoteNumber, children }: ShellProps) {
   return (
     <div className="fixed inset-0 overflow-hidden bg-bg flex">
       <div className="flex-1 overflow-y-auto p-6 lg:p-10">
@@ -66,7 +67,7 @@ function Shell({ title, description, trudyStep, setValue, children }: ShellProps
         </QuoteFormLayout>
       </div>
       <div className="hidden lg:flex w-[340px] flex-col border-l border-border">
-        <TrudyPanel step={trudyStep} setValue={setValue} isNewQuote={false} />
+        <TrudyPanel step={trudyStep} setValue={setValue} isNewQuote={false} quoteNumber={quoteNumber} />
       </div>
     </div>
   );
@@ -88,18 +89,18 @@ function BusinessAddressForm() {
   const params = useParams<{ quoteNumber: string }>();
   const quoteNumber = params?.quoteNumber ?? '';
   const router = useRouter();
-  const { formData, updateFormData, markStepCompleted, setCompletedSteps } = useQuoteStore();
+  const { formData, updateFormData, markStepCompleted, setCompletedSteps, trudy_extracted } = useQuoteStore();
   const { mutateAsync: saveStep, isPending } = useSaveQuoteStep(quoteNumber);
   const stepId: StepId = 'business-address';
 
   const existing = formData.company_info?.business_address;
   const { register, handleSubmit, setValue, formState: { errors } } = useForm<BusinessAddressValues>({
     defaultValues: {
-      street_address: existing?.street_address ?? '',
+      street_address: existing?.street_address ?? (trudy_extracted.street_address as string) ?? '',
       suite: existing?.suite ?? '',
-      city: existing?.city ?? '',
-      state: existing?.state ?? '',
-      zip_code: existing?.zip ?? '',
+      city: existing?.city ?? (trudy_extracted.city as string) ?? '',
+      state: existing?.state ?? (trudy_extracted.state as string) ?? '',
+      zip_code: existing?.zip ?? (trudy_extracted.zip_code as string) ?? '',
     },
   });
 
@@ -134,6 +135,7 @@ function BusinessAddressForm() {
       description="Where is your business located? This helps us determine eligibility and pricing."
       trudyStep="coverage-intro"
       setValue={setValue as unknown as UseFormSetValue<FieldValues>}
+      quoteNumber={quoteNumber}
     >
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         <FormField label="Street address" error={errors.street_address?.message} required>
@@ -206,16 +208,18 @@ function OrganizationInfoForm() {
   const params = useParams<{ quoteNumber: string }>();
   const quoteNumber = params?.quoteNumber ?? '';
   const router = useRouter();
-  const { formData, updateFormData, markStepCompleted, setCompletedSteps } = useQuoteStore();
+  const { formData, updateFormData, markStepCompleted, setCompletedSteps, trudy_extracted } = useQuoteStore();
   const { mutateAsync: saveStep, isPending } = useSaveQuoteStep(quoteNumber);
   const stepId: StepId = 'organization-info';
 
   const existing = formData.company_info?.organization_info;
   const { register, handleSubmit, setValue, formState: { errors } } = useForm<OrganizationInfoValues>({
     defaultValues: {
-      company_name: existing?.entity_legal_name ?? formData.company_name ?? '',
-      dba_name: existing?.dba_name ?? '',
-      ein: existing?.federal_ein ?? '',
+      company_name: existing?.entity_legal_name
+        ?? (trudy_extracted.company_name as string)
+        ?? formData.company_name ?? '',
+      dba_name: existing?.dba_name ?? (trudy_extracted.dba_name as string) ?? '',
+      ein: existing?.federal_ein ?? (trudy_extracted.ein as string) ?? '',
       business_start_date: existing?.business_start_date ?? '',
     },
   });
@@ -251,6 +255,7 @@ function OrganizationInfoForm() {
       description="Tell us a little more about your company."
       trudyStep="company"
       setValue={setValue as unknown as UseFormSetValue<FieldValues>}
+      quoteNumber={quoteNumber}
     >
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         <FormField label="Legal company name" error={errors.company_name?.message} required>
@@ -304,7 +309,7 @@ function FinancialDetailsForm() {
   const params = useParams<{ quoteNumber: string }>();
   const quoteNumber = params?.quoteNumber ?? '';
   const router = useRouter();
-  const { formData, updateFormData, markStepCompleted, setCompletedSteps } = useQuoteStore();
+  const { formData, updateFormData, markStepCompleted, setCompletedSteps, trudy_extracted } = useQuoteStore();
   const { mutateAsync: saveStep, isPending } = useSaveQuoteStep(quoteNumber);
   const stepId: StepId = 'financial-details';
 
@@ -312,9 +317,15 @@ function FinancialDetailsForm() {
   const existingOrg = formData.company_info?.organization_info;
   const { register, handleSubmit, setValue, formState: { errors } } = useForm<FinancialDetailsValues>({
     defaultValues: {
-      annual_revenue: existingFin?.last_12_months_revenue ?? '',
-      total_employees: existingFin?.full_time_employees ?? '',
-      annual_payroll: existingOrg?.estimated_payroll ?? '',
+      annual_revenue: existingFin?.last_12_months_revenue
+        ?? (trudy_extracted.annual_revenue as string | number)
+        ?? '',
+      total_employees: existingFin?.full_time_employees
+        ?? (trudy_extracted.total_employees as string | number)
+        ?? '',
+      annual_payroll: existingOrg?.estimated_payroll
+        ?? (trudy_extracted.annual_payroll as string | number)
+        ?? '',
     },
   });
 
@@ -356,6 +367,7 @@ function FinancialDetailsForm() {
       description="We use these figures to size your coverage and calculate pricing."
       trudyStep="company"
       setValue={setValue as unknown as UseFormSetValue<FieldValues>}
+      quoteNumber={quoteNumber}
     >
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         <FormField label="Annual revenue (USD)" error={errors.annual_revenue?.message} required>
@@ -459,6 +471,7 @@ function StructureOperationsForm() {
       description="A few final questions about how your business is organized."
       trudyStep="company"
       setValue={setValue as unknown as UseFormSetValue<FieldValues>}
+      quoteNumber={quoteNumber}
     >
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         <label className="flex items-start gap-3 p-3 border border-border rounded-xl cursor-pointer hover:bg-surface/50 transition-colors">
