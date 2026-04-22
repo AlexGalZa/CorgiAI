@@ -2,9 +2,13 @@ import uuid
 from django.db import models
 
 
+def _default_session_token() -> str:
+    return str(uuid.uuid4())
+
+
 class AibSession(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    session_token = models.CharField(max_length=36, unique=True, default=uuid.uuid4)
+    session_token = models.CharField(max_length=36, unique=True, default=_default_session_token)
     user = models.ForeignKey(
         "users.User",
         null=True,
