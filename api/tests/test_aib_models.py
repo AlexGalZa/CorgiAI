@@ -41,3 +41,10 @@ def test_aib_message_role_choices():
     session = AibSession.objects.create()
     msg = AibMessage.objects.create(session=session, role="assistant", content="Hi!")
     assert msg.role == "assistant"
+
+
+def test_aib_service_imports():
+    from aib.service import AibService
+    svc = AibService.__new__(AibService)  # don't call __init__ (needs ANTHROPIC_API_KEY)
+    assert hasattr(svc, "chat")
+    assert hasattr(svc, "extract_fields")
