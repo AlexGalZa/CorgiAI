@@ -27,16 +27,6 @@ Guide clients through an insurance intake conversation. Collect specific data po
 - When you have gathered and confirmed all information, end with: [INTAKE_COMPLETE]
 """
 
-STEP_SYSTEM_PROMPTS: dict[str, str] = {
-    "get-started": SYSTEM_PROMPT + "\n\nYou are on the GET STARTED step. Ask the client about their business and what type of coverage they need.",
-    "company": SYSTEM_PROMPT + "\n\nYou are on the COMPANY INFO step. Focus on: legal company name, DBA, FEIN/EIN, number of employees, annual revenue, and annual payroll.",
-    "coverage-intro": SYSTEM_PROMPT + "\n\nYou are on the BUSINESS ADDRESS step. Ask for the full business address including street, city, state, and ZIP.",
-    "coverage": SYSTEM_PROMPT + "\n\nYou are on the COVERAGE QUESTIONS step. Ask coverage-specific risk questions relevant to the coverage type selected.",
-    "claims-history": SYSTEM_PROMPT + "\n\nYou are on the CLAIMS HISTORY step. Ask about prior insurance claims, existing policies, and any known incidents.",
-    "products": SYSTEM_PROMPT + "\n\nYou are on the PRODUCTS step. Help the client understand their coverage options, limits, and what each policy protects against.",
-    "summary": SYSTEM_PROMPT + "\n\nYou are on the SUMMARY step. Help the client review and confirm all the information they've provided.",
-}
-
 STEP_SUFFIXES: dict[str, str] = {
     "get-started": "\n\nYou are on the GET STARTED step. Ask the client about their business and what type of coverage they need.",
     "company": "\n\nYou are on the COMPANY INFO step. Focus on: legal company name, DBA, FEIN/EIN, number of employees, annual revenue, and annual payroll.",
