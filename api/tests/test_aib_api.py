@@ -65,13 +65,11 @@ def test_send_message(client):
 
 
 @pytest.mark.django_db
-def test_claim_session(client):
+def test_claim_session_requires_auth(client):
     from aib.models import AibSession
     session = AibSession.objects.create()
     response = client.post(
         f"/sessions/{session.id}/claim/",
         json={"session_token": session.session_token},
     )
-    assert response.status_code == 200
-    data = response.json()
-    assert data["ok"] is True
+    assert response.status_code == 401
