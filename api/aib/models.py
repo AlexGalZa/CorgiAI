@@ -45,6 +45,7 @@ class AibMessage(models.Model):
     )
     role = models.CharField(max_length=10, choices=ROLE_CHOICES)
     content = models.TextField()
+    file_name = models.CharField(max_length=255, null=True, blank=True)
     extracted_fields = models.JSONField(default=dict, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 

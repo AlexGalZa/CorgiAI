@@ -14,7 +14,6 @@ import { useCreateQuote } from '@/hooks/use-quote';
 import { useCaptureUtm } from '@/hooks/use-capture-utm';
 import { useQuoteStore } from '@/stores/use-quote-store';
 import PartnersStrip from '@/components/layout/PartnersStrip';
-import { TrudyPanel } from '@/components/trudy/TrudyPanel';
 
 const GetStartedSchema = z.object({
   name: z.string().trim().min(2, 'Please enter your full name'),
@@ -181,10 +180,6 @@ export default function QuoteGetStartedPage() {
         </footer>
       </div>
 
-      {/* Right column: Trudy AI advisor panel */}
-      <div className="hidden lg:flex w-[340px] flex-col border-l border-border">
-        <TrudyPanel step="get-started" setValue={setValue} isNewQuote={true} />
-      </div>
     </div>
   );
 }

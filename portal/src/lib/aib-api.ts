@@ -9,6 +9,7 @@ export interface AibMessage {
   id: string;
   role: "user" | "assistant";
   content: string;
+  file_name: string | null;
   extracted_fields: Record<string, unknown>;
   created_at: string;
 }
@@ -28,8 +29,10 @@ async function aibFetch<T>(
   options: RequestInit & { sessionToken?: string; jwt?: string } = {}
 ): Promise<T> {
   const { sessionToken, jwt, ...rest } = options;
+  const isFormData = rest.body instanceof FormData;
   const headers: Record<string, string> = {
-    "Content-Type": "application/json",
+    // Do NOT set Content-Type for FormData — browser sets it with the multipart boundary.
+    ...(isFormData ? {} : { "Content-Type": "application/json" }),
     ...(sessionToken ? { "X-AIB-Token": sessionToken } : {}),
     ...(jwt ? { Authorization: `Bearer ${jwt}` } : {}),
   };
@@ -56,12 +59,18 @@ export async function sendMessage(
   sessionId: string,
   sessionToken: string,
   content: string,
-  step: string
+  step: string,
+  file?: File
 ): Promise<SendMessageResponse> {
+  const body = new FormData();
+  body.append("content", content);
+  body.append("step", step);
+  if (file) body.append("file", file);
+
   return aibFetch<SendMessageResponse>(`/sessions/${sessionId}/messages/`, {
     method: "POST",
     sessionToken,
-    body: JSON.stringify({ content, step }),
+    body,
   });
 }
 

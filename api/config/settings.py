@@ -275,6 +275,7 @@ CORS_ALLOW_HEADERS = [
     "x-requested-with",
     "x-organization-id",
     "x-correlation-id",
+    "x-aib-token",
 ]
 
 # CSRF Configuration

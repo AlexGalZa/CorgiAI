@@ -26,6 +26,7 @@ interface TrudyState {
   greeting: string | null;
   sessionId: string | null;
   sessionToken: string | null;
+  sendError: string | null;
 }
 
 export function useTrudy<T extends FieldValues>({
@@ -49,6 +50,7 @@ export function useTrudy<T extends FieldValues>({
     greeting: null,
     sessionId: null,
     sessionToken: null,
+    sendError: null,
   });
 
   useEffect(() => {
@@ -99,13 +101,15 @@ export function useTrudy<T extends FieldValues>({
   }, [jwt, state.sessionId, state.sessionToken]);
 
   const sendUserMessage = useCallback(
-    async (content: string) => {
-      if (!state.sessionId || !state.sessionToken || !content.trim()) return;
+    async (content: string, file?: File) => {
+      if (!state.sessionId || !state.sessionToken || (!content.trim() && !file)) return;
 
+      const displayContent = file ? `[Attached: ${file.name}]\n\n${content}` : content;
       const userMsg: AibMessage = {
         id: crypto.randomUUID(),
         role: "user",
-        content,
+        content: displayContent,
+        file_name: file?.name ?? null,
         extracted_fields: {},
         created_at: new Date().toISOString(),
       };
@@ -115,6 +119,7 @@ export function useTrudy<T extends FieldValues>({
         messages: [...s.messages, userMsg],
         isLoading: true,
         greeting: null,
+        sendError: null,
       }));
 
       try {
@@ -122,13 +127,15 @@ export function useTrudy<T extends FieldValues>({
           state.sessionId,
           state.sessionToken,
           content,
-          step
+          step,
+          file
         );
 
         const assistantMsg: AibMessage = {
           id: crypto.randomUUID(),
           role: "assistant",
           content: res.message,
+          file_name: null,
           extracted_fields: res.extracted_fields,
           created_at: new Date().toISOString(),
         };
@@ -151,8 +158,9 @@ export function useTrudy<T extends FieldValues>({
         if (Object.keys(mapped).length > 0) {
           updateTrudyExtracted(mapped);
         }
-      } catch {
-        setState((s) => ({ ...s, isLoading: false }));
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : "Something went wrong. Please try again.";
+        setState((s) => ({ ...s, isLoading: false, sendError: msg }));
       }
     },
     [state.sessionId, state.sessionToken, step, setValue, updateTrudyExtracted]
@@ -162,14 +170,15 @@ export function useTrudy<T extends FieldValues>({
     messages: state.messages,
     isLoading: state.isLoading,
     greeting: state.greeting,
-    sendMessage: sendUserMessage,
+    sendError: state.sendError,
+    sendMessage: sendUserMessage as (content: string, file?: File) => Promise<void>,
   };
 }
 
 function getGreeting(step: string): string {
   const greetings: Record<string, string> = {
     "get-started":
-      "Hi! I'm Trudy, your Corgi insurance advisor. Tell me about your business — what does your company do, and what kind of coverage are you looking for?",
+      "Hi! I'm your Corgi Advisor. Tell me about your business — what does your company do, and what kind of coverage are you looking for?",
     company:
       "Let's get your company details set. What's the legal name of your business, and roughly how many employees do you have?",
     "coverage-intro":
@@ -183,5 +192,5 @@ function getGreeting(step: string): string {
     summary:
       "Here's a summary of everything. Take a look and let me know if anything needs correcting.",
   };
-  return greetings[step] ?? "Hi! I'm Trudy. How can I help?";
+  return greetings[step] ?? "Hi! I'm your Corgi Advisor. How can I help?";
 }
