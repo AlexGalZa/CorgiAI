@@ -1,5 +1,5 @@
 Django==5.2.13
-django-unfold==0.90.0
+django-unfold==0.91.0
 django-ninja==1.6.2
 psycopg2-binary==2.9.12
 python-dotenv==1.0.1
