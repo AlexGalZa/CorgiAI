@@ -22,6 +22,6 @@ django-ratelimit>=4.1.0
 django-auditlog
 django-q2>=1.6.0
 pyotp>=2.9.0
-qrcode[pil]>=7.4.2
+qrcode[pil]>=8.2
 Markdown>=3.5.0
 hubspot-api-client>=8.0.0
