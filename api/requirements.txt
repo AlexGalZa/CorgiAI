@@ -17,7 +17,7 @@ openai>=1.0.0
 stripe>=7.0.0
 shortuuid==1.0.13
 sentry-sdk[django]>=2.0.0
-django-sql-explorer>=5.0.0
+django-sql-explorer>=5.3
 django-ratelimit>=4.1.0
 django-auditlog
 django-q2>=1.6.0
