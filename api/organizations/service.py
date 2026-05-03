@@ -16,6 +16,21 @@ class OrganizationService:
         return user.active_organization_id
 
     @staticmethod
+    def ensure_personal_org(user) -> None:
+        """Create a personal org for the user if they don't have one, then set org context."""
+        if getattr(user, "active_organization_id", None):
+            return
+        org, created = Organization.objects.get_or_create(
+            owner=user,
+            is_personal=True,
+            defaults={"name": f"{user.first_name or user.email}'s Organization"},
+        )
+        if created:
+            OrganizationMember.objects.create(user=user, organization=org, role="owner")
+        user.active_organization_id = org.id
+        user.active_org_role = "owner"
+
+    @staticmethod
     def can_edit(user) -> bool:
         role = getattr(user, "active_org_role", None)
         return role in ("owner", "editor")
