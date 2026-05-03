@@ -1,5 +1,5 @@
-# ============================================================
-# Corgi Insurance Platform — Start Everything
+﻿# ============================================================
+# Corgi Insurance Platform - Start Everything
 # ============================================================
 # Usage: .\start.ps1
 #   -setup    First-time setup (install deps, DB, seed data)
@@ -21,14 +21,14 @@ $ErrorActionPreference = "Stop"
 $root = $PSScriptRoot
 
 # Colors
-function Write-Step($msg) { Write-Host "`n🔧 $msg" -ForegroundColor Cyan }
-function Write-OK($msg)   { Write-Host "  ✅ $msg" -ForegroundColor Green }
-function Write-Warn($msg) { Write-Host "  ⚠️  $msg" -ForegroundColor Yellow }
-function Write-Err($msg)  { Write-Host "  ❌ $msg" -ForegroundColor Red }
+function Write-Step($msg) { Write-Host "`n>> $msg" -ForegroundColor Cyan }
+function Write-OK($msg)   { Write-Host "  [OK] $msg" -ForegroundColor Green }
+function Write-Warn($msg) { Write-Host "  [WARN]  $msg" -ForegroundColor Yellow }
+function Write-Err($msg)  { Write-Host "  [ERR] $msg" -ForegroundColor Red }
 
-# ────────────────────────────────────────────────────────────
+# ????????????????????????????????????????????????????????????
 # Dependency checks + auto-install
-# ────────────────────────────────────────────────────────────
+# ????????????????????????????????????????????????????????????
 function Check-Command($name) {
     return [bool](Get-Command $name -ErrorAction SilentlyContinue)
 }
@@ -46,7 +46,7 @@ function Install-WithWinget($packageId, $label) {
         Write-Err "winget not found. Install $label manually: https://aka.ms/winget-install"
         exit 1
     }
-    Write-Host "  ⬇️  Installing $label via winget..." -ForegroundColor Cyan
+    Write-Host "  ??  Installing $label via winget..." -ForegroundColor Cyan
     winget install --id $packageId --silent --accept-package-agreements --accept-source-agreements
     if ($LASTEXITCODE -ne 0) {
         Write-Err "winget failed to install $label (exit $LASTEXITCODE). Install it manually and re-run."
@@ -57,7 +57,7 @@ function Install-WithWinget($packageId, $label) {
 
 function Ensure-Node {
     if (-not (Check-Command "node")) {
-        Write-Warn "Node.js not found — installing automatically..."
+        Write-Warn "Node.js not found - installing automatically..."
         Install-WithWinget "OpenJS.NodeJS.LTS" "Node.js LTS"
         if (-not (Check-Command "node")) {
             Write-Err "Node.js still not found after install. Open a new terminal and re-run."
@@ -81,9 +81,9 @@ function Ensure-Node {
 function Ensure-Python {
     if (Check-Command "python") {
         # pip ships with Python, but is absent on broken/minimal installs.
-        # Treat a missing pip the same as a missing Python — reinstall cleanly.
+        # Treat a missing pip the same as a missing Python - reinstall cleanly.
         if (-not (Check-Command "pip")) {
-            Write-Warn "pip not found — reinstalling Python to get a clean install with pip..."
+            Write-Warn "pip not found - reinstalling Python to get a clean install with pip..."
             Install-WithWinget "Python.Python.3.12" "Python 3.12"
             Refresh-Path
             if (-not (Check-Command "pip")) {
@@ -95,7 +95,7 @@ function Ensure-Python {
         return
     }
 
-    Write-Warn "Python not found — installing automatically..."
+    Write-Warn "Python not found - installing automatically..."
     Install-WithWinget "Python.Python.3.12" "Python 3.12"
 
     # winget installs the 'python3' alias; also check 'python'
@@ -145,9 +145,9 @@ function Ensure-Dependencies {
     }
 }
 
-# ────────────────────────────────────────────────────────────
+# ????????????????????????????????????????????????????????????
 # Setup (first-time install)
-# ────────────────────────────────────────────────────────────
+# ????????????????????????????????????????????????????????????
 function Run-Setup {
     Write-Step "Installing Portal dependencies..."
     Push-Location "$root\portal"
@@ -228,7 +228,7 @@ VITE_SENTRY_DSN=
         Write-OK "admin/.env created"
     } else { Write-OK "admin/.env exists" }
 
-    # ── Start PostgreSQL via Docker ──
+    # ?? Start PostgreSQL via Docker ??
     Write-Step "Starting PostgreSQL..."
     $dbRunning = docker ps --filter "name=corgi-db" --format "{{.Names}}" 2>$null
     if ($dbRunning -eq "corgi-db") {
@@ -253,11 +253,11 @@ VITE_SENTRY_DSN=
                 Write-Host "    Waiting... ($($i*2+2)s)" -ForegroundColor DarkGray
             }
             if ($ready) { Write-OK "PostgreSQL is ready" }
-            else { Write-Warn "PostgreSQL may still be starting — continuing anyway" }
+            else { Write-Warn "PostgreSQL may still be starting - continuing anyway" }
         }
     }
 
-    # ── Start Redis via Docker ──
+    # ?? Start Redis via Docker ??
     Write-Step "Starting Redis..."
     $redisRunning = docker ps --filter "name=corgi-redis" --format "{{.Names}}" 2>$null
     if ($redisRunning -eq "corgi-redis") {
@@ -274,13 +274,13 @@ VITE_SENTRY_DSN=
         }
     }
 
-    # ── Run migrations ──
+    # ?? Run migrations ??
     $venvPython = "$root\api\venv\Scripts\python.exe"
     Write-Step "Checking for model changes..."
     Push-Location "$root\api"
     & $venvPython manage.py makemigrations --check 2>$null
     if ($LASTEXITCODE -ne 0) {
-        Write-Warn "Model changes detected — generating migrations..."
+        Write-Warn "Model changes detected - generating migrations..."
         & $venvPython manage.py makemigrations
     } else {
         Write-OK "Models up to date"
@@ -296,35 +296,35 @@ VITE_SENTRY_DSN=
     }
     Write-OK "Migrations complete"
 
-    # ── Seed form data ──
+    # ?? Seed form data ??
     Write-Step "Seeding form definitions (8 coverage types)..."
     & $venvPython manage.py seed_forms 2>&1
     if ($LASTEXITCODE -ne 0) {
-        Write-Warn "Form seeding failed — you may need to run this manually later"
+        Write-Warn "Form seeding failed - you may need to run this manually later"
     } else {
         Write-OK "Form data seeded"
     }
 
-    # ── Seed platform config ──
+    # ?? Seed platform config ??
     Write-Step "Seeding platform config (limits, carriers, etc.)..."
     & $venvPython manage.py seed_platform_config 2>&1
     if ($LASTEXITCODE -ne 0) {
-        Write-Warn "Platform config seeding failed — run manually: python manage.py seed_platform_config"
+        Write-Warn "Platform config seeding failed - run manually: python manage.py seed_platform_config"
     } else {
         Write-OK "Platform config seeded"
     }
 
-    # ── Seed role accounts for quick login ──
+    # ?? Seed role accounts for quick login ??
     Write-Step "Seeding role accounts (admin, ae, broker, etc.)..."
     & $venvPython manage.py shell -c "exec(open('seed_roles.py').read())" 2>&1
     if ($LASTEXITCODE -ne 0) {
-        Write-Warn "Role seeding failed — you can run manually: python manage.py shell < seed_roles.py"
+        Write-Warn "Role seeding failed - you can run manually: python manage.py shell < seed_roles.py"
     } else {
         Write-OK "Role accounts seeded (password: corgi123)"
     }
     Pop-Location
 
-    # ── Create superuser (interactive) ──
+    # ?? Create superuser (interactive) ??
     Write-Step "Create admin superuser"
     $createAdmin = Read-Host "  Create a superuser now? (y/N)"
     if ($createAdmin -eq 'y' -or $createAdmin -eq 'Y') {
@@ -332,18 +332,18 @@ VITE_SENTRY_DSN=
         & $venvPython manage.py createsuperuser
         Pop-Location
     } else {
-        Write-Warn "Skipped — run 'cd api && python manage.py createsuperuser' later"
+        Write-Warn "Skipped - run 'cd api && python manage.py createsuperuser' later"
     }
 
-    Write-Host "`n✅ Setup complete! Starting servers...`n" -ForegroundColor Green
+    Write-Host "`n[OK] Setup complete! Starting servers...`n" -ForegroundColor Green
 
-    # After setup, start everything — use script scope so main block sees this
+    # After setup, start everything - use script scope so main block sees this
     $script:postSetupStartAll = $true
 }
 
-# ────────────────────────────────────────────────────────────
+# ????????????????????????????????????????????????????????????
 # Docker mode
-# ────────────────────────────────────────────────────────────
+# ????????????????????????????????????????????????????????????
 function Start-Docker {
     Write-Step "Starting all services with Docker Compose..."
     Push-Location $root
@@ -351,9 +351,9 @@ function Start-Docker {
     Pop-Location
 }
 
-# ────────────────────────────────────────────────────────────
+# ????????????????????????????????????????????????????????????
 # Start individual services
-# ────────────────────────────────────────────────────────────
+# ????????????????????????????????????????????????????????????
 function Start-API {
     Write-Step "Starting API server (http://localhost:8000)..."
     $job = Start-Process powershell -ArgumentList @(
@@ -384,18 +384,18 @@ function Start-Admin {
     return $job
 }
 
-# ────────────────────────────────────────────────────────────
+# ????????????????????????????????????????????????????????????
 # Main
-# ────────────────────────────────────────────────────────────
+# ????????????????????????????????????????????????????????????
 
 Write-Host @"
 
-   ██████╗ ██████╗ ██████╗  ██████╗ ██╗
-  ██╔════╝██╔═══██╗██╔══██╗██╔════╝ ██║
-  ██║     ██║   ██║██████╔╝██║  ███╗██║
-  ██║     ██║   ██║██╔══██╗██║   ██║██║
-  ╚██████╗╚██████╔╝██║  ██║╚██████╔╝██║
-   ╚═════╝ ╚═════╝ ╚═╝  ╚═╝ ╚═════╝ ╚═╝
+   ??????? ??????? ???????  ??????? ???
+  ????????????????????????????????? ???
+  ???     ???   ??????????????  ???????
+  ???     ???   ??????????????   ??????
+  ????????????????????  ???????????????
+   ??????? ??????? ???  ??? ??????? ???
    Insurance Platform
 
 "@ -ForegroundColor DarkYellow
@@ -444,14 +444,14 @@ if ($portal -or $startAll) { $jobs += Start-Portal }
 if ($admin -or $startAll)  { $jobs += Start-Admin }
 
 Write-Host "`n" -NoNewline
-Write-Host "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" -ForegroundColor DarkGray
+Write-Host "????????????????????????????????????????" -ForegroundColor DarkGray
 Write-Host ""
-if ($startAll -or $api)    { Write-Host "  🔶 API:    http://localhost:8000" -ForegroundColor Yellow }
-if ($startAll -or $api)    { Write-Host "  🔶 Admin:  http://localhost:8000/admin/" -ForegroundColor Yellow }
-if ($startAll -or $portal) { Write-Host "  🟠 Portal: http://localhost:3000" -ForegroundColor DarkYellow }
-if ($startAll -or $admin)  { Write-Host "  📊 Ops:    http://localhost:3001" -ForegroundColor DarkYellow }
+if ($startAll -or $api)    { Write-Host "  ?? API:    http://localhost:8000" -ForegroundColor Yellow }
+if ($startAll -or $api)    { Write-Host "  ?? Admin:  http://localhost:8000/admin/" -ForegroundColor Yellow }
+if ($startAll -or $portal) { Write-Host "  ?? Portal: http://localhost:3000" -ForegroundColor DarkYellow }
+if ($startAll -or $admin)  { Write-Host "  [OPS] Ops:    http://localhost:3001" -ForegroundColor DarkYellow }
 Write-Host ""
-Write-Host "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" -ForegroundColor DarkGray
+Write-Host "????????????????????????????????????????" -ForegroundColor DarkGray
 Write-Host ""
 Write-Host "  Press Ctrl+C to stop all services" -ForegroundColor DarkGray
 Write-Host ""
@@ -460,7 +460,7 @@ Write-Host ""
 try {
     while ($true) { Start-Sleep -Seconds 1 }
 } finally {
-    Write-Host "`n🛑 Stopping services..." -ForegroundColor Yellow
+    Write-Host "`n[STOP] Stopping services..." -ForegroundColor Yellow
     $jobs | ForEach-Object { 
         if (-not $_.HasExited) { 
             Stop-Process -Id $_.Id -Force -ErrorAction SilentlyContinue
