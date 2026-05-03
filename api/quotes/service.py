@@ -59,6 +59,7 @@ class QuoteService:
     def create_draft_quote(
         coverages: list[str], selected_package: str | None, user
     ) -> Quote:
+        OrganizationService.ensure_personal_org(user)
         if not OrganizationService.can_edit(user):
             raise AccessDeniedError("You do not have permission to create quotes")
 

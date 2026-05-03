@@ -86,6 +86,7 @@ interface QuoteState {
   completedSteps: StepId[];
   expandedSections: FormSection[];
   saveStatus: 'idle' | 'saving' | 'saved' | 'error';
+  trudy_extracted: Record<string, unknown>;
 
   setQuoteNumber: (qn: string) => void;
   setFormData: (data: QuoteFormData) => void;
@@ -94,6 +95,7 @@ interface QuoteState {
   markStepCompleted: (stepId: StepId) => void;
   expandSection: (section: FormSection) => void;
   setSaveStatus: (status: 'idle' | 'saving' | 'saved' | 'error') => void;
+  updateTrudyExtracted: (fields: Record<string, unknown>) => void;
   reset: () => void;
 }
 
@@ -107,6 +109,7 @@ export const useQuoteStore = create<QuoteState>()(
       completedSteps: [],
       expandedSections: [],
       saveStatus: 'idle',
+      trudy_extracted: {},
 
       setQuoteNumber: (qn) => set({ quoteNumber: qn }),
 
@@ -135,6 +138,11 @@ export const useQuoteStore = create<QuoteState>()(
 
       setSaveStatus: (status) => set({ saveStatus: status }),
 
+      updateTrudyExtracted: (fields) =>
+        set((state) => ({
+          trudy_extracted: { ...state.trudy_extracted, ...fields },
+        })),
+
       reset: () =>
         set({
           quoteNumber: null,
@@ -142,6 +150,7 @@ export const useQuoteStore = create<QuoteState>()(
           completedSteps: [],
           expandedSections: [],
           saveStatus: 'idle',
+          trudy_extracted: {},
         }),
     }),
     {

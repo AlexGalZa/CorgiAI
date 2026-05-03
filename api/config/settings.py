@@ -100,6 +100,7 @@ INSTALLED_APPS = [
     "knowledge_base",
     "demos",
     "ninja",
+    "aib",
 ]
 
 AUTH_USER_MODEL = "users.User"
@@ -274,6 +275,7 @@ CORS_ALLOW_HEADERS = [
     "x-requested-with",
     "x-organization-id",
     "x-correlation-id",
+    "x-aib-token",
 ]
 
 # CSRF Configuration
