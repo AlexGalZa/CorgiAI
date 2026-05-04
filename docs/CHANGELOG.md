@@ -2,7 +2,35 @@
 
 All notable changes to the Corgi Insurance Platform.
 
-## [2026-03-31] — Platform Sprint Day
+## [2026-05-04] — Turnaround Week 1 — surface cuts
+
+Phase 1 of a deliberate scope reduction. No new product features in this PR — only bloat removal and honest book-keeping so future weeks can focus on shipping value to the Shepherd team.
+
+**Removed:**
+- 7 unused deploy configs at repo root: `.circleci/`, `.harness/`, `.semaphore/`, `.buddy/`, `netlify.toml`, `render.yaml`, `railway.toml`. None pointed at a configured production deployment.
+- The `aib/` parallel sub-project (Node server + Vite client + own Postgres + three contradictory plan documents). Preserved on the `archive/aib` branch for reference. AI-drafting functionality will be re-implemented inside `api/` as a Django app once the Shepherd one-click follow-up flow is shipped and validated.
+- Eight one-click deploy buttons from README that pointed at templates which were never created.
+
+**Documented:**
+- README now correctly identifies `admin/` as **Shepherd**, the internal sales-acceleration tool for the closing team. A directory rename to `shepherd/` is planned in a follow-up PR.
+- Deployment table now lists one supported target per surface instead of eight aspirational ones.
+
+**Disclosed below:** the [2026-03-31] section that follows was authored on the **predecessor `corgi` repository** before this `CorgiAI` repo was bootstrapped on 2026-04-21. It is preserved here for historical context, but the dates and scope reflect work done in the prior repo — *not* in `CorgiAI` itself. The first commit in this repo is `5719d1d` (2026-04-21).
+
+## [2026-04-21 → 2026-05-02] — CorgiAI repo: actual history
+
+Honest log of human commits since this repo was bootstrapped (excludes 14 dependabot auto-merges).
+
+- **2026-04-21** — Initial bootstrap: merged the predecessor Corgi portal + a new AIB (Trudy chat advisor) service into a single repo (`5719d1d`, `8939e42`).
+- **2026-04-21** — AIB service built end-to-end: AIB Django app scaffold, `AibSession`/`AibMessage` models, `AibService` (Claude-powered with prompt caching and field extraction), 4 API endpoints via django-ninja, typed portal API client, `useTrudy` hook, `TrudyPanel` + `MessageBubble` components, integration into the get-started quote step. Plus: `ANTHROPIC_API_KEY` in `docker-compose.yml`. ~16 commits in one day.
+- **2026-04-22 → 2026-04-23** — AIB iteration: JWT auth on claim_session, atomic message send fixes, dead prompt cleanup, per-quote localStorage keys, file upload, rename advisor to "Corgi Advisor".
+- **2026-04-24 → 2026-05-01** — No human commits (8-day gap).
+- **2026-05-02** — Quotes: auto-provision personal org on draft quote creation. Migrations: Django auto-generated index renames. Tooling: ASCII labels in `start.ps1`.
+- **2026-05-04** — Turnaround Week 1 (this commit).
+
+## [2026-03-31] — Platform Sprint Day *(work done in the predecessor `corgi` repo, imported via 2026-04-21 bootstrap)*
+
+> **Provenance note:** the entries below describe a one-day sprint on the **predecessor `corgi` repository** before its merge into `CorgiAI` on 2026-04-21. The dates, file counts, and line counts refer to that repo, not this one. Preserved unchanged for historical context.
 
 **151 files changed, +14,027 lines, -3,600 lines across 45 commits.**
 
