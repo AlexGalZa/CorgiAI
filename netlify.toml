@@ -1,9 +1,0 @@
-[build]
-  base = "portal"
-  command = "pnpm run build"
-  publish = "out"
-
-[build.environment]
-  NEXT_PUBLIC_API_URL = "https://your-api-url.com"
-  NODE_VERSION = "20"
-  PNPM_VERSION = "9.15.0"
