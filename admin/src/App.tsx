@@ -9,6 +9,7 @@ import Login from '@/pages/Login'
 import NotFoundPage from '@/pages/NotFound'
 import DashboardPage from '@/pages/Dashboard'
 import BrokeredRequestsPage from '@/pages/BrokeredRequests'
+import PipelinePage from '@/pages/Pipeline'
 import QuotesPage from '@/pages/Quotes'
 import QuoteDetailPage from '@/pages/QuoteDetail'
 import PoliciesPage from '@/pages/Policies'
@@ -78,6 +79,7 @@ export default function App() {
             >
               <Route index element={<Navigate to="/dashboard" replace />} />
               <Route path="dashboard" element={<DashboardPage />} />
+              <Route path="pipeline" element={<RoleGuard allowed={STAFF_ROLES}><PipelinePage /></RoleGuard>} />
               <Route path="brokered-requests" element={<BrokeredRequestsPage />} />
               <Route path="quotes" element={<QuotesPage />} />
               <Route path="quotes/:id" element={<QuoteDetailPage />} />

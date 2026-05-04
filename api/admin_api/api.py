@@ -17,6 +17,7 @@ from ninja import Router
 
 from admin_api.analytics import register_analytics_routes
 from admin_api.crud import register_crud_routes
+from admin_api.pipeline import register_pipeline_routes
 from admin_api.policy_actions import register_policy_action_routes
 from admin_api.quote_actions import register_quote_action_routes
 
@@ -27,3 +28,4 @@ register_analytics_routes(router)
 register_quote_action_routes(router)
 register_policy_action_routes(router)
 register_crud_routes(router)
+register_pipeline_routes(router)

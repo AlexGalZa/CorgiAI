@@ -20,6 +20,7 @@ import {
   X,
   Blocks,
   Receipt,
+  Target,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useAuthStore } from '@/stores/auth'
@@ -70,6 +71,7 @@ const aeNav: NavGroup[] = [
   {
     items: [
       { label: 'Dashboard', to: '/dashboard', icon: LayoutDashboard },
+      { label: 'Next actions', to: '/pipeline', icon: Target },
     ],
   },
   {
@@ -164,6 +166,7 @@ const adminNav: NavGroup[] = [
   {
     items: [
       { label: 'Dashboard', to: '/dashboard', icon: LayoutDashboard },
+      { label: 'Next actions', to: '/pipeline', icon: Target },
     ],
   },
   {

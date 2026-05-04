@@ -2,7 +2,7 @@
 Pydantic schemas for the Admin API.
 
 Defines request/response models for analytics, quote actions,
-policy actions, audit log, and form management endpoints.
+policy actions, audit log, form management, and Shepherd pipeline endpoints.
 """
 
 from __future__ import annotations
@@ -13,6 +13,49 @@ from typing import Any, Optional
 
 from ninja import Schema
 from pydantic import Field
+
+
+# ── Shepherd Pipeline Responses ──────────────────────────────────────
+
+
+class PipelineRow(Schema):
+    """One open quote, annotated with closeability + next-best-action."""
+
+    quote_id: int
+    quote_number: str
+    company_name: str
+    customer_email: str
+    customer_name: str
+    status: str = Field(..., description="Quote status (draft/submitted/needs_review/quoted)")
+    premium: Optional[Decimal] = None
+    billing_frequency: str
+    days_since_update: int
+    days_until_expiry: Optional[int] = Field(
+        None, description="Days until quote expires (only set for status='quoted')"
+    )
+    next_action: str = Field(
+        ...,
+        description=(
+            "Recommended next action: send_followup | send_expiry_warning | "
+            "review_underwriting | awaiting_rating | none"
+        ),
+    )
+    closeability_score: int = Field(
+        ..., description="0-200 ranking heuristic; higher means closer to closing"
+    )
+    updated_at: datetime
+    quoted_at: Optional[datetime] = None
+
+
+class PipelineListResponse(Schema):
+    items: list[PipelineRow] = Field(default_factory=list)
+    total: int = 0
+
+
+class PipelineFollowUpResponse(Schema):
+    quote_number: str
+    sent_to: str
+    subject: str
 
 
 # ── Analytics Responses ──────────────────────────────────────────────
