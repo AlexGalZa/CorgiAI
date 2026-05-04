@@ -9,14 +9,17 @@ Corgi is a full-stack insurtech platform that lets technology companies buy comm
 ```
 corgi/
 ├── portal/          → Customer-facing app (Next.js 16)
-├── admin/           → Internal ops dashboard (React 19 + Vite)
+├── admin/           → Shepherd: internal ops dashboard for the closing team (React 19 + Vite)
 ├── api/             → Backend API (Django 5.1 + django-ninja)
+├── deploy/          → Deploy assets (compose overrides, scripts)
 ├── docs/            → Documentation
-├── infra/           → Infrastructure configs
+├── e2e/             → Playwright end-to-end tests
 ├── .github/         → CI/CD workflows
 ├── docker-compose.yml
-└── start.ps1        → One-command startup script
+└── start.ps1        → One-command local startup script
 ```
+
+> **About `admin/`:** this is **Shepherd** — the internal sales-acceleration tool for the team that closes Corgi deals. It is not a customer-facing surface. A full rename of the directory to `shepherd/` is planned in a follow-up PR.
 
 ## Tech Stack
 
@@ -72,80 +75,28 @@ See [docs/SETUP.md](docs/SETUP.md) for step-by-step instructions.
 | Django Admin | [http://localhost:8000/admin/](http://localhost:8000/admin/) |
 | API Docs (External) | [http://localhost:8000/api/external/v1/docs](http://localhost:8000/api/external/v1/docs) |
 
-## ⚡ One-Click Deployments
+## Deployment
 
-### Full Stack (API + Portal + Admin)
+The repo previously listed eight one-click deploy buttons (Railway, Render, Koyeb, Northflank, Netlify, Cloudflare Pages, Surge, GitHub Pages). None pointed at a configured production deployment. Those have been removed in favor of one supported path per surface.
 
-Deploy the entire platform with one click. These support Docker or multi-service apps:
+| Surface | Target | Notes |
+|---------|--------|-------|
+| **Portal** (customer-facing) | Vercel | Configured via `vercel.json`, root directory `portal/`. Set `NEXT_PUBLIC_API_URL`. |
+| **Shepherd** (internal, `admin/`) | TBD — Railway or Render with team auth | Must be auth-gated; not for public access. Set `VITE_API_URL`. |
+| **API** (Django) | Docker — Railway/Render/Fly with managed Postgres + Redis | See `docker-compose.yml` and `Dockerfile`. |
 
-[![Deploy on Railway](https://railway.app/button.svg)](https://railway.app/template/corgi?referralCode=corgi)
-[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/corgi-insure/corgi)
-[![Deploy to Koyeb](https://www.koyeb.com/static/images/deploy/button.svg)](https://app.koyeb.com/deploy?type=docker&image=ghcr.io/corgi-insure/corgi&name=corgi)
-[![Deploy on Northflank](https://northflank.com/button.svg)](https://app.northflank.com/s/account/templates/new?r=https://github.com/corgi-insure/corgi)
+### Local development (Docker)
 
-| Platform | What You Get | Free Tier |
-|----------|-------------|-----------|
-| [Railway](https://railway.app) | Full Docker Compose deploy (API + DB + Redis) | $5/mo credit |
-| [Render](https://render.com) | 3 services + managed Postgres | 512MB RAM, spins down after 15m |
-| [Koyeb](https://koyeb.com) | Docker deploy with global edge | 1 free Nano (512MB), 24/7 uptime |
-| [Northflank](https://northflank.com) | 2 free services + 1 cron job | Permanent free tier |
-
-### Portal Only (Static/SSR Frontend)
-
-Deploy just the customer portal (`/portal`) — connects to your API wherever it's hosted:
-
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/corgi-insure/corgi&root-directory=portal&env=NEXT_PUBLIC_API_URL)
-[![Deploy to Netlify](https://www.netlify.com/img/deploy/button.svg)](https://app.netlify.com/start/deploy?repository=https://github.com/corgi-insure/corgi&base=portal)
-[![Deploy to Cloudflare Pages](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/corgi-insure/corgi&projectName=corgi-portal&rootDirectory=portal)
-
-| Platform | Free Tier | Notes |
-|----------|-----------|-------|
-| [Vercel](https://vercel.com) | 100GB bandwidth, unlimited repos | Best for Next.js — zero config |
-| [Netlify](https://netlify.com) | 100GB bandwidth, 300 build mins/mo | Edge functions included |
-| [Cloudflare Pages](https://pages.cloudflare.com) | Unlimited bandwidth & sites | Fastest global CDN |
-
-### Admin Dashboard Only (Static SPA)
-
-Deploy just the ops dashboard (`/admin`) — lightweight Vite React app:
-
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/corgi-insure/corgi&root-directory=admin&env=VITE_API_URL)
-[![Deploy to Surge](https://img.shields.io/badge/deploy-surge.sh-333?style=for-the-badge)](https://surge.sh)
-[![Deploy to GitHub Pages](https://img.shields.io/badge/deploy-GitHub%20Pages-222?style=for-the-badge&logo=github)](https://pages.github.com)
-
-| Platform | Free Tier | Notes |
-|----------|-----------|-------|
-| [Vercel](https://vercel.com) | 100GB bandwidth | Works great for Vite apps |
-| [Surge.sh](https://surge.sh) | Unlimited sites, custom domains | Static only, instant deploys |
-| [GitHub Pages](https://pages.github.com) | Free for public repos | Static only, via GitHub Actions |
-| [Kinsta](https://kinsta.com) | 100 static sites free | Global CDN included |
-
-### API Only (Django Backend)
-
-Deploy just the backend (`/api`) with a database:
-
-| Platform | Deploy | Free Tier |
-|----------|--------|-----------|
-| [Railway](https://railway.app) | [![Deploy on Railway](https://railway.app/button.svg)](https://railway.app/template/corgi-api) | $5/mo credit, managed Postgres |
-| [Render](https://render.com) | [![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy) | Free Postgres (90 days), 512MB RAM |
-| [Koyeb](https://koyeb.com) | Docker | 1 Nano instance free |
-| [Back4App](https://back4app.com) | Containers | 250MB storage, 10k req |
-| [Adaptable.io](https://adaptable.io) | Zero-config | Free for Node/Python + Postgres |
-| [Supabase](https://supabase.com) | DB only | 500MB Postgres, use with any host |
-
-### Docker Self-Host
-
-Run everywhere with Docker Compose:
-
-```bash
-git clone https://github.com/corgi-insure/corgi.git
-cd corgi
+```powershell
+git clone https://github.com/AlexGalZa/CorgiAI.git
+cd CorgiAI
 docker compose up -d
 ```
 
 Services start at:
 - Portal: `http://localhost:3000`
 - API: `http://localhost:8000`
-- Admin: `http://localhost:3001`
+- Shepherd (admin): `http://localhost:3001`
 
 ### Environment Variables
 

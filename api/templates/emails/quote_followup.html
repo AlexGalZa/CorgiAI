@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Following up on your Corgi quote</title>
+    <style>
+        body { margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #F9F9F9; color: #1D1D1D; line-height: 1.6; }
+        .email-wrapper { width: 100%; background-color: #F9F9F9; padding: 40px 20px; }
+        .email-container { max-width: 600px; margin: 0 auto; background-color: #FFFFFF; border-radius: 25px; overflow: hidden; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05); }
+        .email-header { text-align: center; padding: 40px 40px 10px; }
+        .logo-image { width: 150px; height: auto; }
+        .email-title { font-size: 28px; font-weight: 600; line-height: 1.2; color: #1D1D1D; margin: 16px 0 0; }
+        .email-body { padding: 16px 40px 24px; font-size: 15px; color: #1D1D1D; }
+        .quote-card { background: linear-gradient(135deg, #FFF8F5 0%, #FFFFFF 100%); border: 2px solid #FFE8DD; border-radius: 16px; padding: 20px 24px; margin: 20px 0; }
+        .info-row { display: flex; justify-content: space-between; padding: 6px 0; font-size: 14px; }
+        .info-label { color: #4E4E4E; }
+        .info-value { color: #1D1D1D; font-weight: 600; }
+        .quote-number { color: #FF5C00; font-weight: 700; }
+        .cta-button { display: inline-block; padding: 14px 28px; background-color: #FF5C00; color: #FFFFFF !important; text-decoration: none; text-align: center; border-radius: 8px; font-weight: 600; font-size: 15px; }
+        .signature { margin-top: 24px; font-size: 15px; }
+        .signature-name { font-weight: 600; color: #FF5C00; }
+        .email-footer { background-color: #F9F9F9; padding: 16px 40px; text-align: center; font-size: 12px; color: #4E4E4E; }
+    </style>
+</head>
+<body>
+    <div class="email-wrapper">
+        <div class="email-container">
+            <div class="email-header">
+                <img src="https://cdn.corgi.insure/images/corgi-flying.png" alt="Corgi" class="logo-image">
+                <h1 class="email-title">Just checking in.</h1>
+            </div>
+
+            <div class="email-body">
+                <p>Hi {{ customer_name }},</p>
+
+                <p>Wanted to make sure your Corgi quote for <strong>{{ company_name }}</strong> didn't slip through the cracks. It's still active and ready when you are.</p>
+
+                <div class="quote-card">
+                    <div class="info-row"><span class="info-label">Quote</span><span class="info-value quote-number">{{ quote_number }}</span></div>
+                    {% if premium %}
+                    <div class="info-row"><span class="info-label">Premium</span><span class="info-value">${{ premium }}{% if billing_frequency == 'monthly' %}/mo{% else %}/yr{% endif %}</span></div>
+                    {% endif %}
+                    {% if quoted_at %}
+                    <div class="info-row"><span class="info-label">Quoted</span><span class="info-value">{{ quoted_at|date:"M j, Y" }}</span></div>
+                    {% endif %}
+                </div>
+
+                <p>Two options from here: <strong>finish in the portal</strong> (link below), or just reply to this email and we'll handle it for you.</p>
+
+                <p style="text-align: center; margin: 28px 0;">
+                    <a href="{{ portal_url }}/dashboard/quotes/{{ quote_number }}" class="cta-button">Continue your quote</a>
+                </p>
+
+                <p>If anything in the quote needs to change &mdash; coverage, limits, business details &mdash; just say the word.</p>
+
+                <p class="signature">
+                    Talk soon,<br>
+                    <span class="signature-name">The Corgi team</span>
+                </p>
+            </div>
+
+            <div class="email-footer">
+                You're receiving this because you started a quote with Corgi Insurance.
+            </div>
+        </div>
+    </div>
+</body>
+</html>

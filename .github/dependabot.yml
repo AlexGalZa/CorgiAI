@@ -8,15 +8,21 @@ updates:
       day: "monday"
       time: "09:00"
       timezone: "America/Los_Angeles"
-    open-pull-requests-limit: 10
-    reviewers:
-      - "corgi-insurance/engineering"
+    open-pull-requests-limit: 2
     labels:
       - "dependencies"
       - "python"
     commit-message:
       prefix: "chore(deps)"
       include: "scope"
+    groups:
+      python-minor-patch:
+        applies-to: version-updates
+        update-types:
+          - "minor"
+          - "patch"
+      python-security:
+        applies-to: security-updates
     ignore:
       # Ignore major version bumps for framework packages (require manual review)
       - dependency-name: "Django"
@@ -24,7 +30,7 @@ updates:
       - dependency-name: "django-ninja"
         update-types: ["version-update:semver-major"]
 
-  # JavaScript / Node dependencies (npm)
+  # JavaScript / Node dependencies (portal)
   - package-ecosystem: "npm"
     directory: "/portal"
     schedule:
@@ -32,15 +38,21 @@ updates:
       day: "monday"
       time: "09:00"
       timezone: "America/Los_Angeles"
-    open-pull-requests-limit: 10
-    reviewers:
-      - "corgi-insurance/engineering"
+    open-pull-requests-limit: 2
     labels:
       - "dependencies"
       - "javascript"
     commit-message:
       prefix: "chore(deps)"
       include: "scope"
+    groups:
+      portal-minor-patch:
+        applies-to: version-updates
+        update-types:
+          - "minor"
+          - "patch"
+      portal-security:
+        applies-to: security-updates
     ignore:
       # Ignore major version bumps for Next.js and React (require manual review)
       - dependency-name: "next"
@@ -50,7 +62,7 @@ updates:
       - dependency-name: "react-dom"
         update-types: ["version-update:semver-major"]
 
-  # Admin SPA (Vite / pnpm)
+  # Shepherd / admin SPA (Vite + pnpm)
   - package-ecosystem: "npm"
     directory: "/admin"
     schedule:
@@ -58,15 +70,21 @@ updates:
       day: "monday"
       time: "09:00"
       timezone: "America/Los_Angeles"
-    open-pull-requests-limit: 10
-    reviewers:
-      - "corgi-insurance/engineering"
+    open-pull-requests-limit: 2
     labels:
       - "dependencies"
       - "javascript"
     commit-message:
       prefix: "chore(deps)"
       include: "scope"
+    groups:
+      shepherd-minor-patch:
+        applies-to: version-updates
+        update-types:
+          - "minor"
+          - "patch"
+      shepherd-security:
+        applies-to: security-updates
     ignore:
       - dependency-name: "react"
         update-types: ["version-update:semver-major"]
@@ -83,14 +101,16 @@ updates:
       day: "monday"
       time: "09:00"
       timezone: "America/Los_Angeles"
-    open-pull-requests-limit: 5
-    reviewers:
-      - "corgi-insurance/engineering"
+    open-pull-requests-limit: 1
     labels:
       - "dependencies"
       - "docker"
     commit-message:
       prefix: "chore(docker)"
+    groups:
+      docker-all:
+        patterns:
+          - "*"
 
   # GitHub Actions
   - package-ecosystem: "github-actions"
@@ -100,11 +120,13 @@ updates:
       day: "monday"
       time: "09:00"
       timezone: "America/Los_Angeles"
-    open-pull-requests-limit: 5
-    reviewers:
-      - "corgi-insurance/engineering"
+    open-pull-requests-limit: 1
     labels:
       - "dependencies"
       - "github-actions"
     commit-message:
       prefix: "chore(ci)"
+    groups:
+      gha-all:
+        patterns:
+          - "*"
