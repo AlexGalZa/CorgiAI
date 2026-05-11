@@ -4,7 +4,7 @@ django-ninja==1.6.2
 psycopg2-binary==2.9.12
 python-dotenv==1.0.1
 boto3==1.42.93
-resend==2.29.0
+resend==2.30.0
 django-cors-headers==4.9.0
 gunicorn==25.3.0
 uvicorn==0.44.0
