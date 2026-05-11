@@ -20,7 +20,7 @@ sentry-sdk[django]>=2.0.0
 django-sql-explorer>=5.0.0
 django-ratelimit>=4.1.0
 django-auditlog
-django-q2>=1.6.0
+django-q2>=1.10.0
 pyotp>=2.9.0
 qrcode[pil]>=7.4.2
 Markdown>=3.5.0
